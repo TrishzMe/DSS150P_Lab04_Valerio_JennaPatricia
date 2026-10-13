@@ -1,0 +1,70 @@
+# Source manifest: identity of the one authoritative source snapshot used by this pipeline.
+# `python -m src.cli verify-source` recomputes every value under `file` and `schema` and fails
+# on any difference, so a reviewer can prove they are using the same bytes.
+
+dataset_id: world_air_quality_2024
+title: World Air Quality Data 2024 (Updated)
+version: "2024-03-25 snapshot (latest 'Last Updated' value in the file)"
+
+provenance:
+  publisher: Kaggle user kanchana1990
+  landing_page: https://www.kaggle.com/datasets/kanchana1990/world-air-quality-data-2024-updated
+  upstream_origin: >-
+    OpenAQ network aggregation of government and research air-quality monitors
+    (as described in the dataset listing and the original project paper).
+  obtained_by: Predictive Analytics group project (Grino, Perez, Valerio), July 2026
+  original_local_name: world_air_quality.csv
+  update_frequency: >-
+    Unknown / irregular. The Kaggle listing is a periodically refreshed snapshot; this pipeline
+    treats the file as a static, versioned snapshot identified by its checksum.
+  expected_availability: >-
+    Committed in this repository under data/source/ (redistribution permitted by CC BY 4.0).
+    If the Kaggle listing changes, its new file will NOT match this checksum and must be
+    registered as a new source version.
+
+license:
+  name: Creative Commons Attribution 4.0 International (CC BY 4.0)
+  url: https://creativecommons.org/licenses/by/4.0/
+  redistribution_allowed: true
+  attribution_required: true
+  attribution: >-
+    "World Air Quality Data 2024 (Updated)" by kanchana1990, Kaggle, licensed under CC BY 4.0.
+    Unmodified copy; derived layers are produced by this pipeline.
+
+privacy:
+  contains_personal_data: false
+  notes: >-
+    Station-level environmental measurements only (station names/addresses and coordinates of
+    public monitoring sites). No personal or sensitive data; safe to publish.
+
+file:
+  relative_path: data/source/world_air_quality.csv
+  expected_filename: world_air_quality.csv
+  format: csv
+  delimiter: ";"
+  encoding: utf-8-sig        # UTF-8 with byte-order mark
+  line_terminator: CRLF
+  header: true
+  size_bytes: 6472005
+  row_count: 54255           # data records, excluding the header
+  column_count: 10
+  sha256: 2b2202a0fa1cffdeddf803e54dd7f822812d86de3a6449c03798bb872b272f10
+  md5: ba5d8e436e26333d79df067e8a28f7bc
+
+schema:
+  columns:
+    - Country Code
+    - City
+    - Location
+    - Coordinates
+    - Pollutant
+    - Source Name
+    - Unit
+    - Value
+    - Last Updated
+    - Country Label
+
+placement_convention: >-
+  Place the unmodified file at data/source/world_air_quality.csv. Never edit, re-save or
+  re-encode it (spreadsheet tools change delimiters, encoding and line endings, which breaks
+  the checksum). Verify with: python -m src.cli verify-source

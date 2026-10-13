@@ -1,0 +1,412 @@
+{
+  "dataset_id": "world_air_quality_2024",
+  "source_file": "data/source/world_air_quality.csv",
+  "file": {
+    "size_bytes": 6472005,
+    "sha256": "2b2202a0fa1cffdeddf803e54dd7f822812d86de3a6449c03798bb872b272f10",
+    "encoding": "utf-8-sig",
+    "has_utf8_bom": true,
+    "line_terminator": "CRLF",
+    "header": [
+      "Country Code",
+      "City",
+      "Location",
+      "Coordinates",
+      "Pollutant",
+      "Source Name",
+      "Unit",
+      "Value",
+      "Last Updated",
+      "Country Label"
+    ],
+    "column_count": 10,
+    "row_count": 54255
+  },
+  "columns": [
+    {
+      "column": "Country Code",
+      "declared_type": "string (ISO-3166 alpha-2)",
+      "non_null": 54255,
+      "empty_strings": 0,
+      "null_tokens": {},
+      "null_total": 0,
+      "null_rate": 0.0,
+      "distinct_non_null": 131,
+      "inferred_type": "string",
+      "top_values": {
+        "CN": 11115,
+        "JP": 6270,
+        "US": 6051,
+        "ES": 3251,
+        "FR": 2490,
+        "IN": 2367,
+        "DE": 2223,
+        "IT": 2166
+      }
+    },
+    {
+      "column": "City",
+      "declared_type": "string, nullable",
+      "non_null": 30209,
+      "empty_strings": 23688,
+      "null_tokens": {
+        "N/A": 346,
+        "None": 12
+      },
+      "null_total": 24046,
+      "null_rate": 0.443203,
+      "distinct_non_null": 2414,
+      "inferred_type": "string",
+      "top_values": {
+        "CCAA Andalucía": 416,
+        "National automated monitoring network (SIS)": 356,
+        "CCAA Com. Valenciana": 315,
+        "ATMO AUVERGNE-RHÔNE-ALPES": 273,
+        "ATMO NOUVELLE-AQUITAINE": 262,
+        "Dr. Steffen Freitag": 258,
+        "CCAA Galicia": 252,
+        "Susanne Schmid": 221
+      }
+    },
+    {
+      "column": "Location",
+      "declared_type": "string (station name/address)",
+      "non_null": 54253,
+      "empty_strings": 0,
+      "null_tokens": {
+        "N/A": 2
+      },
+      "null_total": 2,
+      "null_rate": 3.7e-05,
+      "distinct_non_null": 10462,
+      "inferred_type": "string"
+    },
+    {
+      "column": "Coordinates",
+      "declared_type": "string 'lat, lon'",
+      "non_null": 54185,
+      "empty_strings": 70,
+      "null_tokens": {},
+      "null_total": 70,
+      "null_rate": 0.00129,
+      "distinct_non_null": 13986,
+      "inferred_type": "string"
+    },
+    {
+      "column": "Pollutant",
+      "declared_type": "categorical string",
+      "non_null": 54255,
+      "empty_strings": 0,
+      "null_tokens": {},
+      "null_total": 0,
+      "null_rate": 0.0,
+      "distinct_non_null": 13,
+      "inferred_type": "string",
+      "top_values": {
+        "NO2": 9942,
+        "PM2.5": 9547,
+        "O3": 8350,
+        "PM10": 8050,
+        "SO2": 6907,
+        "CO": 5074,
+        "NO": 3863,
+        "NOX": 2015
+      }
+    },
+    {
+      "column": "Source Name",
+      "declared_type": "categorical string",
+      "non_null": 54255,
+      "empty_strings": 0,
+      "null_tokens": {},
+      "null_total": 0,
+      "null_rate": 0.0,
+      "distinct_non_null": 147,
+      "inferred_type": "string",
+      "top_values": {
+        "ChinaAQIData": 10974,
+        "AirNow": 7376,
+        "japan-soramame": 6268,
+        "EEA Spain": 2939,
+        "EEA France": 2495,
+        "EEA Germany": 2225,
+        "caaqm": 2190,
+        "EEA Italy": 1696
+      }
+    },
+    {
+      "column": "Unit",
+      "declared_type": "categorical string",
+      "non_null": 54255,
+      "empty_strings": 0,
+      "null_tokens": {},
+      "null_total": 0,
+      "null_rate": 0.0,
+      "distinct_non_null": 5,
+      "inferred_type": "string",
+      "top_values": {
+        "µg/m³": 40948,
+        "ppm": 13059,
+        "c": 117,
+        "%": 66,
+        "particles/cm³": 65
+      }
+    },
+    {
+      "column": "Value",
+      "declared_type": "float",
+      "non_null": 54255,
+      "empty_strings": 0,
+      "null_tokens": {},
+      "null_total": 0,
+      "null_rate": 0.0,
+      "distinct_non_null": 12994,
+      "inferred_type": "float64",
+      "unparseable": 0,
+      "min": -49051.4,
+      "max": 3198676.0,
+      "median": 9.2,
+      "negatives": 554,
+      "zeros": 2299
+    },
+    {
+      "column": "Last Updated",
+      "declared_type": "timestamp with UTC offset (ISO-8601)",
+      "non_null": 54255,
+      "empty_strings": 0,
+      "null_tokens": {},
+      "null_total": 0,
+      "null_rate": 0.0,
+      "distinct_non_null": 4438,
+      "inferred_type": "datetime64[ns, UTC]",
+      "unparseable": 0,
+      "min": "2014-03-13T17:30:00+05:30",
+      "max": "2024-03-25T14:30:00+05:30",
+      "min_utc": "2014-03-13 12:00:00+00:00",
+      "max_utc": "2024-03-25 09:00:00+00:00",
+      "utc_offsets": {
+        "+05:30": 54255
+      },
+      "distinct_utc_dates": 1703
+    },
+    {
+      "column": "Country Label",
+      "declared_type": "string, nullable",
+      "non_null": 54140,
+      "empty_strings": 115,
+      "null_tokens": {},
+      "null_total": 115,
+      "null_rate": 0.00212,
+      "distinct_non_null": 118,
+      "inferred_type": "string",
+      "top_values": {
+        "China": 11115,
+        "Japan": 6270,
+        "United States": 6051,
+        "Spain": 3251,
+        "France": 2490,
+        "India": 2367,
+        "Germany": 2223,
+        "Italy": 2166
+      }
+    }
+  ],
+  "candidate_keys": [
+    {
+      "columns": [
+        "Location",
+        "Pollutant",
+        "Last Updated"
+      ],
+      "duplicate_rows": 9334,
+      "is_unique": false
+    },
+    {
+      "columns": [
+        "Location",
+        "Pollutant",
+        "Unit",
+        "Last Updated"
+      ],
+      "duplicate_rows": 9334,
+      "is_unique": false
+    },
+    {
+      "columns": [
+        "Location",
+        "Pollutant",
+        "Source Name",
+        "Last Updated"
+      ],
+      "duplicate_rows": 9333,
+      "is_unique": false
+    },
+    {
+      "columns": [
+        "Country Code",
+        "Location",
+        "Coordinates",
+        "Pollutant",
+        "Unit",
+        "Last Updated"
+      ],
+      "duplicate_rows": 68,
+      "is_unique": false
+    },
+    {
+      "columns": [
+        "Country Code",
+        "City",
+        "Location",
+        "Coordinates",
+        "Pollutant",
+        "Source Name",
+        "Unit",
+        "Value",
+        "Last Updated",
+        "Country Label"
+      ],
+      "duplicate_rows": 0,
+      "is_unique": true
+    }
+  ],
+  "duplicates": {
+    "full_row_duplicates": 0,
+    "business_key": [
+      "Location",
+      "Pollutant",
+      "Last Updated"
+    ],
+    "business_key_duplicate_rows": 9334,
+    "business_key_duplicate_rows_in_scope": 8074
+  },
+  "pollutant_unit_matrix": [
+    {
+      "Pollutant": "BC",
+      "Unit": "µg/m³",
+      "rows": 135
+    },
+    {
+      "Pollutant": "CO",
+      "Unit": "ppm",
+      "rows": 1275
+    },
+    {
+      "Pollutant": "CO",
+      "Unit": "µg/m³",
+      "rows": 3799
+    },
+    {
+      "Pollutant": "NO",
+      "Unit": "ppm",
+      "rows": 1984
+    },
+    {
+      "Pollutant": "NO",
+      "Unit": "µg/m³",
+      "rows": 1879
+    },
+    {
+      "Pollutant": "NO2",
+      "Unit": "ppm",
+      "rows": 2857
+    },
+    {
+      "Pollutant": "NO2",
+      "Unit": "µg/m³",
+      "rows": 7085
+    },
+    {
+      "Pollutant": "NOX",
+      "Unit": "ppm",
+      "rows": 1896
+    },
+    {
+      "Pollutant": "NOX",
+      "Unit": "µg/m³",
+      "rows": 119
+    },
+    {
+      "Pollutant": "O3",
+      "Unit": "ppm",
+      "rows": 2827
+    },
+    {
+      "Pollutant": "O3",
+      "Unit": "µg/m³",
+      "rows": 5523
+    },
+    {
+      "Pollutant": "PM1",
+      "Unit": "µg/m³",
+      "rows": 124
+    },
+    {
+      "Pollutant": "PM10",
+      "Unit": "µg/m³",
+      "rows": 8050
+    },
+    {
+      "Pollutant": "PM2.5",
+      "Unit": "ppm",
+      "rows": 6
+    },
+    {
+      "Pollutant": "PM2.5",
+      "Unit": "µg/m³",
+      "rows": 9541
+    },
+    {
+      "Pollutant": "RELATIVEHUMIDITY",
+      "Unit": "%",
+      "rows": 66
+    },
+    {
+      "Pollutant": "SO2",
+      "Unit": "ppm",
+      "rows": 2214
+    },
+    {
+      "Pollutant": "SO2",
+      "Unit": "µg/m³",
+      "rows": 4693
+    },
+    {
+      "Pollutant": "TEMPERATURE",
+      "Unit": "c",
+      "rows": 117
+    },
+    {
+      "Pollutant": "UM003",
+      "Unit": "particles/cm³",
+      "rows": 65
+    }
+  ],
+  "in_scope_rows": 47870,
+  "target_reading_level": {
+    "pm25_ugm3_valid_readings": 9392,
+    "above_threshold": 3246,
+    "at_or_below_threshold": 6146,
+    "share_above_threshold": 0.345613,
+    "median": 10.4,
+    "p95": 56.8492999999997,
+    "max": 1060.0
+  },
+  "temporal": {
+    "locations": 10462,
+    "median_dates_per_location": 1.0,
+    "max_dates_per_location": 33,
+    "share_locations_single_date": 0.782355
+  },
+  "malformed": {
+    "negative_values": 554,
+    "empty_or_malformed_coordinates": 70,
+    "country_code_label_pairs": 118,
+    "country_codes_with_multiple_labels": 0,
+    "rows_with_non_ascii_location": 21340,
+    "climate_readings": {
+      "TEMPERATURE": 117,
+      "RELATIVEHUMIDITY": 66
+    }
+  }
+}

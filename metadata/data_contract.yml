@@ -1,0 +1,108 @@
+# Data contract between the source system (World Air Quality CSV) and this pipeline's consumers
+# (curated tables in PostgreSQL and the PM2.5 exceedance classifier).
+#
+# on_violation:
+#   fail       -> stop the pipeline with a non-zero exit; nothing downstream is (re)written
+#   quarantine -> move the offending rows to data/quarantine/ with a reason; continue
+#                 (but fail if the invalid share exceeds transform.max_invalid_row_rate)
+#   exclude    -> rows are valid but out of scope for this data product; counted and archived
+#   warn       -> log and report, continue
+
+contract_version: 1.0.0
+dataset_id: world_air_quality_2024
+source_version_sha256: 2b2202a0fa1cffdeddf803e54dd7f822812d86de3a6449c03798bb872b272f10
+data_product_owner: Jenna Patricia G. Valerio
+upstream_owner: Kaggle user kanchana1990 (OpenAQ aggregation)
+default_on_violation: fail
+
+format:
+  type: csv
+  delimiter: ";"
+  encoding: utf-8-sig
+  header: true
+  line_terminator: CRLF
+
+columns:
+  - {name: Country Code,  staging_name: country_code,     type: string,    nullable: false, pattern: "^[A-Z]{2}$", on_violation: warn}
+  - {name: City,          staging_name: city,             type: string,    nullable: true,  null_fill: Unknown}
+  - {name: Location,      staging_name: location,         type: string,    nullable: true,  null_fill: Unknown}
+  - {name: Coordinates,   staging_name: coordinates,      type: string,    nullable: true,  note: "not used downstream (dropped, as in the original project)"}
+  - {name: Pollutant,     staging_name: pollutant,        type: string,    nullable: false, on_violation: quarantine,
+     allowed_values: [BC, CO, NO, NO2, NOX, O3, PM1, PM10, PM2.5, RELATIVEHUMIDITY, SO2, TEMPERATURE, UM003],
+     in_scope_values: [PM2.5, PM10, NO2, O3, SO2, CO]}
+  - {name: Source Name,   staging_name: source_name,      type: string,    nullable: false, on_violation: warn}
+  - {name: Unit,          staging_name: unit,             type: string,    nullable: false, on_violation: quarantine,
+     allowed_values: ["µg/m³", ppm, c, "%", "particles/cm³"], in_scope_values: ["µg/m³"]}
+  - {name: Value,         staging_name: value,            type: float,     nullable: false, on_violation: quarantine,
+     min_inclusive: 0.0, note: "negative concentrations are sensor errors"}
+  - {name: Last Updated,  staging_name: last_updated_utc, type: timestamp, nullable: false, on_violation: quarantine,
+     format: "ISO-8601 with UTC offset; converted to UTC"}
+  - {name: Country Label, staging_name: country_label,    type: string,    nullable: true,  null_fill: Unknown}
+
+null_tokens: see config/settings.yml source.null_tokens (pandas default NA list)
+
+keys:
+  raw:
+    columns: [source_row_key]
+    definition: 1-based ordinal of the record in the immutable source file
+    unique: true
+    contiguous: true
+  staging:
+    columns: [location, pollutant, last_updated_utc]
+    rule: keep the first record in source order (lowest source_row_key); later ones -> quarantine (duplicate_reading)
+    unique: true
+  curated_station_day:
+    columns: [country_label, city, location, reading_date]
+    surrogate: station_day_key = sha256(country_label, city, location, reading_date)
+    unique: true
+
+target:
+  name: air_quality
+  derived_from: pm25   # station-day mean of PM2.5 readings in µg/m³
+  rule: "Unhealthy if pm25 > 15.0 else Safe"
+  allowed_values: [Safe, Unhealthy]
+  never_a_feature: [pm25, pm10, air_quality]
+
+features:
+  ordered: [no2, o3, so2, co, so2_missing, co_missing, ox_total_oxidant, no2_o3_ratio]
+  required_non_null_in_curated: [pm25, no2, o3]
+  imputed_in_model_input: [so2, co]
+
+# Applicability: for this exact source version the layer sizes below are known. A static dataset
+# cannot be "fresh", so freshness is replaced by checking that we process the declared version.
+expected_counts:
+  raw_rows: 54255
+  in_scope_rows: 47870
+  staging_rows: 30545
+  station_day_rows: 11558
+  model_ready_rows: 2628
+  model_ready_class_counts: {Unhealthy: 1513, Safe: 1115}
+  train_rows: 2102
+  test_rows: 526
+
+checks:
+  - {id: SRC-01, layer: source,  category: freshness_applicability, on_violation: fail,       rule: "file sha256/size/header/row count equal source_manifest.yml"}
+  - {id: SCH-01, layer: raw,     category: schema,       on_violation: fail,       rule: "all contract columns present, in order, no extras"}
+  - {id: UNQ-01, layer: raw,     category: uniqueness,   on_violation: fail,       rule: "source_row_key unique and contiguous 1..N across committed batches"}
+  - {id: CMP-00, layer: raw,     category: completeness, on_violation: fail,       rule: "raw row count equals manifest row_count"}
+  - {id: SCH-02, layer: staging, category: schema,       on_violation: quarantine, rule: "value parses as float"}
+  - {id: SCH-03, layer: staging, category: schema,       on_violation: quarantine, rule: "last_updated parses as timestamp"}
+  - {id: CMP-01, layer: staging, category: completeness, on_violation: quarantine, rule: "pollutant, unit, value, last_updated not null"}
+  - {id: VAL-01, layer: staging, category: validity,     on_violation: quarantine, rule: "value >= 0"}
+  - {id: VAL-02, layer: staging, category: validity,     on_violation: exclude,    rule: "unit == µg/m³ for in-scope pollutants"}
+  - {id: VAL-03, layer: staging, category: validity,     on_violation: quarantine, rule: "pollutant and unit in allowed_values"}
+  - {id: INV-01, layer: staging, category: validity,     on_violation: fail,       rule: "quarantined invalid share <= transform.max_invalid_row_rate"}
+  - {id: UNQ-02, layer: staging, category: uniqueness,   on_violation: fail,       rule: "(location, pollutant, last_updated_utc) unique"}
+  - {id: UNQ-03, layer: curated, category: uniqueness,   on_violation: fail,       rule: "station_day_key unique"}
+  - {id: CMP-02, layer: curated, category: completeness, on_violation: fail,       rule: "model-ready pm25, no2, o3 have no nulls"}
+  - {id: VAL-04, layer: curated, category: validity,     on_violation: fail,       rule: "air_quality in {Safe, Unhealthy}; missing flags in {0,1}; pollutant values >= 0"}
+  - {id: CON-01, layer: curated, category: consistency,  on_violation: fail,       rule: "air_quality == Unhealthy  <=>  pm25 > 15.0"}
+  - {id: CON-02, layer: curated, category: consistency,  on_violation: fail,       rule: "ox_total_oxidant == no2 + o3 and no2_o3_ratio == no2 / (o3 + 1)"}
+  - {id: CON-03, layer: curated, category: consistency,  on_violation: fail,       rule: "so2_missing == 1 <=> so2 is null (same for co)"}
+  - {id: CON-04, layer: curated, category: consistency,  on_violation: fail,       rule: "PostgreSQL curated row counts and key checksums equal the Parquet files"}
+  - {id: APP-01, layer: curated, category: freshness_applicability, on_violation: fail, rule: "layer row counts equal expected_counts for this source version"}
+  - {id: PRD-01, layer: model,   category: predictive_integrity, on_violation: fail, rule: "features contain no target/leakage columns"}
+  - {id: PRD-02, layer: model,   category: predictive_integrity, on_violation: fail, rule: "train and test station_day_keys are disjoint"}
+  - {id: PRD-03, layer: model,   category: predictive_integrity, on_violation: fail, rule: "feature columns and order equal features.ordered"}
+  - {id: PRD-04, layer: model,   category: predictive_integrity, on_violation: fail, rule: "train/test key checksums equal metadata/split_manifest.json"}
+  - {id: REP-01, layer: model,   category: reproducibility, on_violation: fail,    rule: "every expected metric within reproducibility.tolerance_abs"}

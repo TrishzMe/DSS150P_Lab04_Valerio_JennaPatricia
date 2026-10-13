@@ -1,0 +1,82 @@
+{
+  "description": "Baseline results of the original Predictive Analytics group project, captured from the saved cell outputs of baseline/original/Predictive_Final_Project_code.ipynb (6 d.p.; the paper baseline/original/paper.md reports the same values rounded to 3 d.p.).",
+  "baseline_project": "Predicting PM2.5 Air Quality Exceedances Using Machine Learning: A Co-Pollutant Chemistry Approach (Grino, Perez, Valerio)",
+  "source_sha256": "2b2202a0fa1cffdeddf803e54dd7f822812d86de3a6449c03798bb872b272f10",
+  "baseline_environment": {
+    "python": "3.13.9 (notebook kernel metadata)",
+    "libraries": "not recorded by the original project"
+  },
+  "task": "binary classification",
+  "target": "air_quality = Unhealthy if station-day mean PM2.5 > 15.0 ug/m3 else Safe",
+  "features": ["no2", "o3", "so2", "co", "so2_missing", "co_missing", "ox_total_oxidant", "no2_o3_ratio"],
+  "split": {"method": "train_test_split(test_size=0.2, random_state=42, stratify=y, shuffle=True)", "train_rows": 2102, "test_rows": 526},
+  "cross_validation": {"method": "StratifiedKFold(n_splits=5, shuffle=True, random_state=42) over all model-ready rows", "scoring": "f1_weighted"},
+  "primary_metric": "gradient_boosting.cv_f1_weighted_mean",
+  "selection_rule": "best model = highest cv_f1_weighted_mean",
+  "metric_definitions": {
+    "test_accuracy": "sklearn accuracy_score on the held-out test set",
+    "test_precision_weighted": "sklearn precision_score(average='weighted', zero_division=0) on the test set",
+    "test_recall_weighted": "sklearn recall_score(average='weighted', zero_division=0) on the test set",
+    "test_f1_weighted": "sklearn f1_score(average='weighted', zero_division=0) on the test set",
+    "cv_f1_weighted_mean": "mean of cross_val_score(..., scoring='f1_weighted') over 5 stratified folds",
+    "cv_f1_weighted_std": "population std (numpy default) of the 5 fold scores",
+    "test_true_safe": "confusion-matrix count of Safe test rows predicted Safe (reported in the paper)"
+  },
+  "row_counts": {
+    "raw_rows": 54255,
+    "filtered_in_scope_rows": 47870,
+    "staging_rows": 30545,
+    "station_day_rows": 11558,
+    "model_ready_rows": 2628,
+    "class_counts": {"Unhealthy": 1513, "Safe": 1115},
+    "train_rows": 2102,
+    "test_rows": 526,
+    "test_safe_rows": 223
+  },
+  "models": {
+    "logistic_regression": {
+      "display_name": "Logistic Regression",
+      "params": {"max_iter": 1000},
+      "test_accuracy": 0.673004,
+      "test_precision_weighted": 0.673589,
+      "test_recall_weighted": 0.673004,
+      "test_f1_weighted": 0.656994,
+      "cv_f1_weighted_mean": 0.672786,
+      "cv_f1_weighted_std": 0.023194,
+      "test_true_safe": 98
+    },
+    "random_forest": {
+      "display_name": "Random Forest",
+      "params": {"n_estimators": 200, "random_state": 42},
+      "test_accuracy": 0.716730,
+      "test_precision_weighted": 0.715967,
+      "test_recall_weighted": 0.716730,
+      "test_f1_weighted": 0.716283,
+      "cv_f1_weighted_mean": 0.707718,
+      "cv_f1_weighted_std": 0.008398,
+      "test_true_safe": 146
+    },
+    "gradient_boosting": {
+      "display_name": "Gradient Boosting",
+      "params": {"n_estimators": 200, "random_state": 42},
+      "test_accuracy": 0.705323,
+      "test_precision_weighted": 0.703983,
+      "test_recall_weighted": 0.705323,
+      "test_f1_weighted": 0.704445,
+      "cv_f1_weighted_mean": 0.712210,
+      "cv_f1_weighted_std": 0.006402,
+      "test_true_safe": 141
+    }
+  },
+  "best_model": "gradient_boosting",
+  "random_forest_feature_importances": {
+    "o3": 0.183439,
+    "ox_total_oxidant": 0.180247,
+    "no2_o3_ratio": 0.179825,
+    "co": 0.157234,
+    "no2": 0.157030,
+    "so2": 0.120666,
+    "co_missing": 0.012007,
+    "so2_missing": 0.009552
+  }
+}
