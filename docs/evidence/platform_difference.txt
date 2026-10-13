@@ -1,0 +1,22 @@
+Platform difference in Gradient Boosting cross-validation (Linux containers vs Windows)
+Recorded: 2026-10-13. Same data (identical curated table), same code, same pinned wheels:
+numpy 2.5.4, pandas 3.0.6, scikit-learn 1.9.1, scipy 1.18.1.
+
+GradientBoostingClassifier(n_estimators=200, random_state=42),
+StratifiedKFold(5, shuffle=True, random_state=42), scoring=f1_weighted, single-threaded.
+
+Environment                                   fold scores                                              mean      std
+Windows 11, Python 3.12.10 (local venv)       0.705575 0.712278 0.716972 0.721376 0.704847             0.712210  0.006402   (= baseline)
+Linux container, Python 3.12.14               0.705575 0.712278 0.714993 0.721376 0.704847             0.711814  0.006152
+Linux container, NPY_DISABLE_CPU_FEATURES=X86_V3  (identical to the line above)                        0.711814  0.006152
+
+Findings
+- Only fold 3 differs; the other four folds, every held-out test metric, every confusion matrix and the
+  Random Forest importances are identical on both platforms (test predictions are the same).
+- Turning off numpy's AVX2/FMA (X86_V3) SIMD dispatch does not change the Linux result, so numpy's
+  vectorised math is not the cause.
+- Most likely cause: scikit-learn's compiled tree/loss code is built with different compilers and
+  linked against different C math libraries (GCC + glibc on Linux, MSVC + UCRT on Windows); last-bit
+  differences in exp/log or summation order can flip a near-tie split in one fold's boosting sequence.
+- Impact: |0.711814 - 0.712210| = 0.000396 and |0.006152 - 0.006402| = 0.000250, both within the declared
+  tolerance of 0.0005 (3 decimal places); rounded to 3 d.p. the CV mean is 0.712 on both platforms.

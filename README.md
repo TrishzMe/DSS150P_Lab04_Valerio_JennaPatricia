@@ -2,8 +2,11 @@
 
 This repository rebuilds a Predictive Analytics group project as a **reproducible, rerun-safe data product**:
 the same checksummed source dataset is ingested, validated, transformed, stored, orchestrated, tested and
-used to regenerate the original model results. Running it on another machine reproduces **every baseline
-metric exactly** (maximum difference 0 at 6 decimal places), with the **same train/test rows** as the original notebook.
+used to regenerate the original model results, with the **same train/test rows** as the original notebook:
+- **Windows:** every baseline metric is reproduced exactly (maximum difference 0 at 6 decimal places).
+- **Linux Docker/Airflow containers:** all test-set metrics are identical; one Gradient Boosting cross-validation
+  fold differs slightly (CV mean 0.711814 vs 0.712210, a difference of 0.0004), which is within the declared
+  ±0.0005 tolerance. The cause is explained in the [reproducibility report](docs/reproducibility_report.md).
 
 | Field | Entry |
 |---|---|
@@ -34,6 +37,9 @@ metric exactly** (maximum difference 0 at 6 decimal places), with the **same tra
 | Logistic Regression | 0.673004 → 0.673004 | 0.656994 → 0.656994 | 0.672786 → 0.672786 |
 | Random Forest | 0.716730 → 0.716730 | 0.716283 → 0.716283 | 0.707718 → 0.707718 |
 | **Gradient Boosting** (best, primary metric) | 0.705323 → 0.705323 | 0.704445 → 0.704445 | **0.712210 → 0.712210** |
+
+Values above are from the Windows run. In the Linux containers, Gradient Boosting's CV F1 is 0.711814 ± 0.006152
+(the baseline is 0.712210 ± 0.006402); everything else is identical (`docs/evidence/platform_difference.txt`).
 
 **Tolerance rule:** every metric must satisfy |reproduced − baseline| ≤ 0.0005 (3 decimal places), and row counts and split
 checksums must match exactly. The pipeline checks this automatically: it writes `outputs/reproducibility_comparison.json`
@@ -254,7 +260,7 @@ record is `outputs/runs/<run>/run_record.json`, mirrored in `audit.pipeline_runs
 
 | ID | Where it is demonstrated |
 |---|---|
-| A1 | This README (clean-clone steps, section 4) |
+| A1 | This README (clean-clone steps, section 4); `docs/evidence/clean_clone_check.txt` |
 | A2 | `metadata/source_manifest.yml`, `verify-source`, unit test |
 | A3 | Relative paths only; test `test_no_absolute_user_paths_in_executable_code` |
 | A4 | `.env` git-ignored; only `.env.example` committed |
@@ -270,7 +276,7 @@ record is `outputs/runs/<run>/run_record.json`, mirrored in `audit.pipeline_runs
 | A14 | `docs/evidence/failure_drills.txt`; test `test_quality_checks_catch_injected_defects` |
 | A15 | `docs/evidence/rerun_no_duplicates.txt` |
 | A16 | `outputs/metrics.json` is produced by `evaluate` from `data/curated/model_ready.parquet` |
-| A17 | `outputs/reproducibility_comparison.json` (`matches_within_tolerance`, max diff 0) |
+| A17 | `outputs/reproducibility_comparison.json` (`matches_within_tolerance`; max diff 0 on Windows, 0.000396 in the Linux containers) |
 | A18 | `docs/architecture.png`, `docs/lineage.png`, `docs/runbook.md`, `docs/reproducibility_report.md` |
 
 ## 11. Expected outputs

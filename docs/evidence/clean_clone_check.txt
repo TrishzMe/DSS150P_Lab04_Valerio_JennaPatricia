@@ -1,0 +1,88 @@
+Clean-clone reproduction check
+Generated: 2026-10-13T11:18:13Z
+git core.autocrlf (effective, system config): false
+=================================================================
+
+## 1. git clone (fresh working copy, no untracked/ignored files)
+9ffb0bc docs: add lineage, runbook, reproducibility report and README
+tracked .env files: 0  (only .env.example is tracked: 1)
+
+## 2. source checksum after clone
+2b2202a0fa1cffdeddf803e54dd7f822812d86de3a6449c03798bb872b272f10 *data/source/world_air_quality.csv
+
+## 3. .env from .env.example (passwords replaced; ports 5435/8082 to avoid clashing with running stacks)
+POSTGRES_HOST_PORT=5435
+POSTGRES_PORT=5435
+AIRFLOW_HOST_PORT=8082
+
+## 4. docker compose -p lab04_cleanclone up -d --build postgres
+ Container lab04_cleanclone-postgres-1 Starting 
+ Container lab04_cleanclone-postgres-1 Started 
+postgres: healthy
+
+## 5. docker compose -p lab04_cleanclone run --rm --build pipeline run-all
+exit code: 0
+  ingest_source 1.7485s
+  validate_raw 0.8349s
+  transform_staging 0.9143s
+  build_curated 0.2887s
+  partition_staging 0.2919s
+  load_postgres 2.4219s
+  validate_curated 2.1452s
+  train_model 2.3606s
+  evaluate_model 8.3162s
+  reproducibility_check 0.0259s
+  publish_outputs 0.2574s
+
+## 6. outputs/run_summary.json
+{
+  "pipeline_run_id": "cleanclone_run_1",
+  "status": "success",
+  "started_at_utc": "2026-10-13T11:18:28.172+00:00",
+  "ended_at_utc": "2026-10-13T11:18:49.878+00:00",
+  "impute_scope": "baseline",
+  "counts": {
+    "raw_rows": 54255,
+    "staging_rows": 30545,
+    "quarantined_rows": 23710,
+    "curated_station_day_rows": 11558,
+    "curated_model_ready_rows": 2628,
+    "train_rows": 2102,
+    "test_rows": 526,
+    "prediction_rows": 1578,
+    "postgres_prediction_rows": 1578
+  },
+  "best_model": "gradient_boosting",
+  "reproducibility_outcome": "matches_within_tolerance",
+  "stage_status": {
+    "ingest_source": "success",
+    "validate_raw": "success",
+    "transform_staging": "success",
+    "build_curated": "success",
+    "partition_staging": "success",
+    "load_postgres": "success",
+    "validate_curated": "success",
+    "train_model": "success",
+    "evaluate_model": "success",
+    "reproducibility_check": "success",
+    "publish_outputs": "success"
+  }
+}
+
+## 7. reproducibility comparison
+outcome: matches_within_tolerance | passed: True | max_abs_diff: 0.000396 | metrics compared: 29
+split checksums equal: True
+
+## 8. tests inside the container (docker compose run --rm --entrypoint pytest pipeline)
+....................                                                     [100%]
+20 passed in 5.21s
+
+## 9. second run-all on the clean clone (rerun safety)
+exit code: 0
+ "table_name": "curated.predictions",	 "duplicate_business_keys": 0
+ "table_name": "curated.model_ready",	 "duplicate_business_keys": 0
+ "table_name": "staging.air_quality_readings",	 "duplicate_business_keys": 0
+ "table_name": "curated.station_day_pollutants",	 "duplicate_business_keys": 0
+
+RESULT: PASS (clean clone -> containers -> success; reproducibility within tolerance; 20 tests passed; rerun adds no duplicates)
+Note: the max_abs_diff of 0.000396 is the Linux-vs-Windows Gradient Boosting CV difference documented in docs/evidence/platform_difference.txt.

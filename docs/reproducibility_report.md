@@ -17,18 +17,20 @@ The original notebook was rebuilt as a layered, orchestrated pipeline:
 - **Runtimes:** Python modules, PostgreSQL 16 and Airflow 3.3.2, all in Docker Compose.
 - **Safeguards:** checksummed source, data contract, quality checks, rerun-safe loads, tests and evidence.
 
-**Result: the reproduction matches the baseline exactly.**
+**Result: the reproduction matches the baseline within tolerance on every platform, and exactly on Windows.**
 
 | What was compared | Result |
 |---|---|
 | Baseline values checked automatically | All 29: 18 test/CV metrics, 3 confusion-matrix counts, 8 Random Forest feature importances |
-| Agreement | Identical to the 6 decimals the notebook printed; maximum absolute difference **0** |
+| Agreement, Windows (Python 3.12.10, local venv) | Identical to the 6 decimals the notebook printed; maximum absolute difference **0** |
+| Agreement, Linux containers (Python 3.12.14; Docker pipeline image, Airflow, clean clone) | 27 of 29 identical. Gradient Boosting CV F1 mean 0.711814 (diff **0.000396**) and std 0.006152 (diff 0.000250); all within tolerance (section 3, deviation 9) |
 | Declared tolerance | ±0.0005 (3 decimal places) |
-| Train/test split | Exactly the same 2,102 / 526 station-days as the original notebook (equal key checksums) |
+| Train/test split | Exactly the same 2,102 / 526 station-days as the original notebook (equal key checksums), on both platforms |
 | Model-ready table | Bit-identical to the notebook's frame (2,628 rows, same order, same float values) |
-| Environments | Windows virtual environment (Python 3.12.10) and Linux containers (Python 3.12.14, Airflow) give the same result |
+| Held-out test predictions | Identical on both platforms (same confusion matrices for all three models) |
 
-Outcome category (lab section 10.2): **Matches within tolerance**, with zero difference.
+Outcome category (lab section 10.2): **Matches within tolerance**. The difference is zero on Windows, and on Linux the
+only non-zero differences are explained in section 3.
 
 ## 2. Prior project vs. engineered reproduction
 
@@ -64,6 +66,9 @@ Outcome category (lab section 10.2): **Matches within tolerance**, with zero dif
 | | F1 (w) | 0.704445 | 0.704445 | 0 |
 | | **CV F1 mean (primary)** | **0.712210** ± 0.006402 | **0.712210** ± 0.006402 | **0** |
 
+The reproduced values above are from the Windows run. In the Linux containers every value is the same except Gradient
+Boosting's CV F1: 0.711814 ± 0.006152 (difference 0.000396 / 0.000250).
+
 **Other values checked:**
 - Confusion-matrix true-Safe counts: 98 / 146 / 141, all equal to the paper.
 - Random Forest importances: O3 0.183439, Ox 0.180247, NO2/O3 ratio 0.179825, CO 0.157234, NO2 0.157030, SO2 0.120666, CO flag 0.012007, SO2 flag 0.009552, all equal.
@@ -83,6 +88,13 @@ Machine-readable comparison: `outputs/reproducibility_comparison.json`.
 | 6 | Optional `impute_scope: train_only` (medians from training rows only; imputer refitted inside every CV fold) | Removes the original leakage | **None observed:** the medians are SO2 = 6.0 and CO = 600.0 whether computed on all rows or on training rows (values are heavily rounded), so all metrics are identical. Results: `outputs/variants/train_only/` |
 | 7 | Model fitting and CV run single-threaded (`threadpoolctl` limit 1) | Removes thread-count-dependent floating-point reductions | None |
 | 8 | Extra columns (`station_day_key`, `n_readings`, audit columns) | Lineage and keys | Not used as features |
+| 9 | Execution on Linux (Docker image and Airflow) as well as Windows | Containerised, reviewer-friendly runtime | **One CV fold of Gradient Boosting differs** (fold 3: 0.714993 on Linux vs 0.716972 on Windows), giving CV mean 0.711814 vs 0.712210. The other folds, all test metrics and all predictions are identical. See below. |
+
+**Investigation of deviation 9** (`docs/evidence/platform_difference.txt`):
+- **Inputs are identical:** the curated table, split and wheels (numpy 2.5.4, scikit-learn 1.9.1) are the same on both platforms, and fitting is single-threaded and seeded.
+- **numpy is ruled out:** switching off numpy's AVX2/FMA SIMD dispatch (`NPY_DISABLE_CPU_FEATURES=X86_V3`) does not change the Linux result.
+- **Most likely cause:** scikit-learn's compiled tree and loss code is built with different compilers and linked against different C math libraries (GCC/glibc vs MSVC/UCRT). Last-bit differences in `exp`/`log` or in summation order can change which of two nearly equal splits a boosting stage picks in one fold.
+- **Decision:** this is an environment-level non-determinism, not a data, preprocessing, split or parameter difference, and it stays inside the declared tolerance. The tolerance was therefore kept at the lab's default 3-decimal rule (0.0005); the margin is 0.0001.
 
 ## 4. Deterministic controls
 
@@ -116,11 +128,16 @@ Machine-readable comparison: `outputs/reproducibility_comparison.json`.
 | Tests | `pytest`: 20 tests (unit, integration incl. PostgreSQL, data quality) |
 | Metric comparison | `outputs/reproducibility_comparison.json`, `outputs/metrics.json` |
 | Same rows / same split as the notebook | `docs/evidence/notebook_replay.json` (`python baseline/replay_notebook.py --compare-curated`) |
+| Clean clone → containers → reproduction | `docs/evidence/clean_clone_check.txt` (fresh `git clone`, `.env` from template, all 11 stages, 20 tests, rerun without duplicates) |
+| Windows vs Linux difference | `docs/evidence/platform_difference.txt` |
 
 ## 6. Known limitations
 
 - **Precision of the baseline:** baseline metrics are known only to 6 decimals (the notebook's printed outputs), so "identical"
   means identical to 6 decimals.
+- **Platform dependence:** exact reproduction of Gradient Boosting's CV score depends on the platform. Linux differs by
+  0.000396, close to the 0.0005 limit. A future library or OS change could exceed it, and then the tolerance would need
+  re-justifying (for example ±0.001 for CV metrics only) or the reference platform would need fixing.
 - **Simulated incremental arrival:** the dataset is a single static snapshot, so incremental arrival is simulated with
   sequence batches (see Q4). The checkpoint is not a business watermark.
 - **Outliers kept:** for example, CO up to 3,198,676 µg/m³. The original project did not cap them, and changing that would change the
@@ -227,7 +244,8 @@ In this pipeline:
 - **Input check:** `--compare-curated` compares the curated model-ready table with the notebook's frame before imputation; it is identical in row order and float values (`docs/evidence/notebook_replay.json`). The same input, the same seed and the same `train_test_split` call therefore select the same rows.
 
 **11. What sources of non-determinism remain?**
-- **CPU floating point:** different CPU architectures and SIMD paths in BLAS or scikit-learn's Cython code could change the last bits of Logistic Regression or Gradient Boosting computations. Single-threading removes thread-order effects, but not architecture effects.
+- **Operating system / compiled math libraries (observed):** the same wheels give Gradient Boosting CV F1 0.712210 on Windows and 0.711814 on Linux, because one CV fold builds a slightly different boosting sequence (deviation 9). The likely cause is platform-specific floating-point behaviour in scikit-learn's compiled code. Single-threading removes thread-order effects but not this.
+- **CPU architecture:** other CPU architectures (for example ARM) could add similar last-bit differences.
 - **Mutable image tags:** Docker base images are pinned by tag, not digest.
 - **Audit metadata:** run IDs, timestamps and durations differ by design; `row_hash` excludes them.
 - **Benchmark timings:** these naturally vary, which is why medians are reported.
