@@ -83,6 +83,32 @@ def cmd_validate_curated(settings: Settings, args: argparse.Namespace) -> Any:
     return report["summary"]
 
 
+def cmd_init_db(settings: Settings, args: argparse.Namespace) -> Any:
+    from .storage import init_db
+
+    return init_db(settings)
+
+
+def cmd_load_postgres(settings: Settings, args: argparse.Namespace) -> Any:
+    from .storage import load_postgres
+
+    with stage(settings, args.run_id, "load_postgres") as ctx:
+        return load_postgres(settings, args.run_id, ctx)
+
+
+def cmd_db_stats(settings: Settings, args: argparse.Namespace) -> Any:
+    from .storage import db_stats
+
+    return db_stats(settings)
+
+
+def cmd_sync_audit(settings: Settings, args: argparse.Namespace) -> Any:
+    from .storage import sync_run_record
+
+    sync_run_record(settings, args.run_id)
+    return {"synced_run": args.run_id}
+
+
 def cmd_raw_stats(settings: Settings, args: argparse.Namespace) -> Any:
     from .ingest import load_checkpoint, raw_summary
 
@@ -106,6 +132,10 @@ COMMANDS: dict[str, tuple[Handler, str]] = {
     "transform-staging": (cmd_transform_staging, "Raw -> staging (typed, deduplicated, quarantine)"),
     "build-curated": (cmd_build_curated, "Staging -> curated station-day and model-ready tables"),
     "validate-curated": (cmd_validate_curated, "Run curated-layer data-quality checks"),
+    "init-db": (cmd_init_db, "Create PostgreSQL schemas, tables and views (idempotent)"),
+    "load-postgres": (cmd_load_postgres, "Rerun-safe load of staging and curated tables into PostgreSQL"),
+    "db-stats": (cmd_db_stats, "Show duplicate business keys and recent load statistics"),
+    "sync-audit": (cmd_sync_audit, "Copy the run record of --run-id into audit.pipeline_runs/task_runs"),
 }
 
 

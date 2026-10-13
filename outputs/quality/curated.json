@@ -1,11 +1,11 @@
 {
-  "pipeline_run_id": "dev_m04",
+  "pipeline_run_id": "dev_m05_run2",
   "layer": "curated",
-  "generated_at_utc": "2026-10-13T10:28:06.836+00:00",
+  "generated_at_utc": "2026-10-13T10:36:42.108+00:00",
   "status": "passed",
   "summary": {
-    "checks": 9,
-    "passed": 9,
+    "checks": 10,
+    "passed": 10,
     "failed": 0,
     "warnings": 0
   },
@@ -167,6 +167,48 @@
           "Safe": 1115
         },
         "staging_rows": 30545
+      },
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "CON-04",
+      "name": "PostgreSQL tables equal Parquet files; SQL ELT matches Python",
+      "category": "consistency",
+      "layer": "curated",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": {
+        "staging.air_quality_readings": {
+          "parquet_rows": 30545,
+          "postgres_rows": 30545,
+          "key_checksum_equal": true,
+          "values_equal": true
+        },
+        "curated.station_day_pollutants": {
+          "parquet_rows": 11558,
+          "postgres_rows": 11558,
+          "key_checksum_equal": true,
+          "values_equal": true
+        },
+        "curated.model_ready": {
+          "parquet_rows": 2628,
+          "postgres_rows": 2628,
+          "key_checksum_equal": true,
+          "values_equal": true
+        },
+        "sql_elt_vs_python_station_day": {
+          "only_in_sql_view": 0,
+          "only_in_curated_table": 0,
+          "null_mismatches": 0,
+          "max_abs_diff": 7.105427357601002e-15,
+          "n_readings_mismatches": 0
+        }
+      },
+      "expected": {
+        "rows/keys/values": "equal",
+        "elt_max_abs_diff": "<= 1e-6",
+        "elt_mismatches": 0
       },
       "message": "",
       "status": "pass"

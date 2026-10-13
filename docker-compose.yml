@@ -1,0 +1,51 @@
+# DSS150P Lab 04 services. Usage (from the repository root, after `cp .env.example .env`):
+#   docker compose up -d postgres                    # database only
+#   docker compose run --rm pipeline run-all         # whole pipeline once, in a container
+#   docker compose run --rm pipeline <command>       # any single stage, e.g. ingest / train
+name: dss150p_lab04_valerio_jennapatricia
+
+x-db-env: &db-env
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+  POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB in .env}
+
+services:
+  postgres:
+    image: postgres:16.15
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB in .env}
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5434}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # The pipeline and Airflow only start once this check passes (no race with a cold database).
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  pipeline:
+    build: .
+    image: dss150p-lab04-pipeline:1.0
+    profiles: ["manual"]          # started only with `docker compose run pipeline ...`
+    environment:
+      <<: *db-env
+      PIPELINE_RUN_ID: ${PIPELINE_RUN_ID:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
+      - ./metadata:/app/metadata
+      - ./outputs:/app/outputs
+      - ./logs:/app/logs
+      - ./docs:/app/docs
+
+volumes:
+  pgdata:
