@@ -319,6 +319,10 @@ Model binaries (`*.joblib`) are regenerated, not committed.
                lifecycle_and_gaps.md  evidence/
 ```
 
+**Repository name:** the repository is named `DSS150P_Lab04_Valerio_JennaPatricia`, following the naming I used for
+earlier DSS150P labs, instead of the brief's example `DSS150P_REPRO_LASTNAME_FIRSTNAME`. The structure inside follows
+section 6 of the brief.
+
 **Deviations, all additive (the required files exist with the required names):**
 - **Extra `src/` modules** keep each concern small:
   - `source.py`: source identity and reading;

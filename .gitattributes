@@ -6,6 +6,11 @@ data/source/*.csv -text
 # Verbatim copies of the original group project must stay byte-identical as well.
 baseline/original/** -text
 
+# GitHub language statistics: the original group notebook is reference material, not this repository's
+# code, so it is excluded; SQL files are counted (GitHub ignores them by default).
+baseline/original/** linguist-vendored
+*.sql linguist-detectable
+
 *.parquet binary
 *.png binary
 *.pdf binary
