@@ -1,0 +1,175 @@
+{
+  "pipeline_run_id": "dev_m04",
+  "layer": "curated",
+  "generated_at_utc": "2026-10-13T10:28:06.836+00:00",
+  "status": "passed",
+  "summary": {
+    "checks": 9,
+    "passed": 9,
+    "failed": 0,
+    "warnings": 0
+  },
+  "checks": [
+    {
+      "check_id": "UNQ-03",
+      "name": "station_day_key unique",
+      "category": "uniqueness",
+      "layer": "curated",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": {
+        "station_day_dups": 0,
+        "model_ready_dups": 0
+      },
+      "expected": 0,
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "CMP-02",
+      "name": "model-ready required pollutants not null",
+      "category": "completeness",
+      "layer": "curated",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": {
+        "pm25": 0,
+        "no2": 0,
+        "o3": 0
+      },
+      "expected": {
+        "pm25": 0,
+        "no2": 0,
+        "o3": 0
+      },
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "VAL-04",
+      "name": "labels, flags and concentrations valid",
+      "category": "validity",
+      "layer": "curated",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": {
+        "labels": [
+          "Safe",
+          "Unhealthy"
+        ],
+        "flags_binary": true,
+        "negative_values": 0
+      },
+      "expected": {
+        "labels": [
+          "Safe",
+          "Unhealthy"
+        ],
+        "flags_binary": true,
+        "negative_values": 0
+      },
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "CON-01",
+      "name": "air_quality consistent with pm25 > 15.0",
+      "category": "consistency",
+      "layer": "curated",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": 0,
+      "expected": 0,
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "CON-02",
+      "name": "derived features equal their formulas",
+      "category": "consistency",
+      "layer": "curated",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": {
+        "ox_total_oxidant": 0,
+        "no2_o3_ratio": 0
+      },
+      "expected": {
+        "ox_total_oxidant": 0,
+        "no2_o3_ratio": 0
+      },
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "CON-03",
+      "name": "missing flags match nulls",
+      "category": "consistency",
+      "layer": "curated",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": {
+        "so2": 0,
+        "co": 0
+      },
+      "expected": {
+        "so2": 0,
+        "co": 0
+      },
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "DET-01",
+      "name": "station_day rows in declared total order ['location', 'reading_date', 'country_label', 'city']",
+      "category": "consistency",
+      "layer": "curated",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": "sorted",
+      "expected": "sorted",
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "DET-01",
+      "name": "model_ready rows in declared total order ['location', 'reading_date', 'country_label', 'city']",
+      "category": "consistency",
+      "layer": "curated",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": "sorted",
+      "expected": "sorted",
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "APP-01",
+      "name": "layer row counts equal expected counts for this source version",
+      "category": "freshness_applicability",
+      "layer": "curated",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": {
+        "station_day_rows": 11558,
+        "model_ready_rows": 2628,
+        "model_ready_class_counts": {
+          "Safe": 1115,
+          "Unhealthy": 1513
+        },
+        "staging_rows": 30545
+      },
+      "expected": {
+        "station_day_rows": 11558,
+        "model_ready_rows": 2628,
+        "model_ready_class_counts": {
+          "Unhealthy": 1513,
+          "Safe": 1115
+        },
+        "staging_rows": 30545
+      },
+      "message": "",
+      "status": "pass"
+    }
+  ]
+}

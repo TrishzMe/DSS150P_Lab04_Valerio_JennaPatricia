@@ -1,0 +1,136 @@
+{
+  "pipeline_run_id": "dev_m04_again",
+  "layer": "staging",
+  "generated_at_utc": "2026-10-13T10:28:09.143+00:00",
+  "status": "passed",
+  "summary": {
+    "checks": 8,
+    "passed": 8,
+    "failed": 0,
+    "warnings": 0
+  },
+  "checks": [
+    {
+      "check_id": "SCH-02",
+      "name": "value is float",
+      "category": "schema",
+      "layer": "staging",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": "float64",
+      "expected": "float64",
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "SCH-03",
+      "name": "last_updated_utc is a UTC timestamp",
+      "category": "schema",
+      "layer": "staging",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": "datetime64[us, UTC]",
+      "expected": "datetime64[*, UTC]",
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "CMP-01",
+      "name": "critical fields not null",
+      "category": "completeness",
+      "layer": "staging",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": {
+        "pollutant": 0,
+        "unit": 0,
+        "value": 0,
+        "last_updated_utc": 0,
+        "location": 0,
+        "city": 0,
+        "country_label": 0
+      },
+      "expected": {
+        "pollutant": 0,
+        "unit": 0,
+        "value": 0,
+        "last_updated_utc": 0,
+        "location": 0,
+        "city": 0,
+        "country_label": 0
+      },
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "UNQ-02",
+      "name": "(location, pollutant, last_updated_utc) unique",
+      "category": "uniqueness",
+      "layer": "staging",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": 0,
+      "expected": 0,
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "VAL-01",
+      "name": "value >= 0",
+      "category": "validity",
+      "layer": "staging",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": 0,
+      "expected": 0,
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "VAL-02",
+      "name": "only µg/m³ and in-scope pollutants",
+      "category": "validity",
+      "layer": "staging",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": {
+        "units": [],
+        "pollutants": []
+      },
+      "expected": {
+        "units": [],
+        "pollutants": []
+      },
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "INV-01",
+      "name": "structurally invalid share within limit",
+      "category": "validity",
+      "layer": "staging",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": 0.0,
+      "expected": "<= 0.01",
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "REC-01",
+      "name": "every raw row is in staging or quarantine",
+      "category": "consistency",
+      "layer": "staging",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": {
+        "raw": 54255,
+        "staging": 30545,
+        "quarantine": 23710
+      },
+      "expected": "raw == staging + quarantine",
+      "message": "",
+      "status": "pass"
+    }
+  ]
+}

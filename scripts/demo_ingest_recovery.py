@@ -61,7 +61,7 @@ def main() -> int:
               f"duplicate_keys={last_stats['duplicate_source_row_keys']} committed_batches={last_stats['committed_batches']}",
               f"RESULT: {'PASS' if ok else 'FAIL'}"]
     EVIDENCE.parent.mkdir(parents=True, exist_ok=True)
-    EVIDENCE.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    EVIDENCE.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     print("\n".join(lines[-2:]))
     print(f"Transcript written to {EVIDENCE.relative_to(ROOT)}")
     return 0 if ok else 1

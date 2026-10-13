@@ -61,6 +61,28 @@ def cmd_validate_raw(settings: Settings, args: argparse.Namespace) -> Any:
     return report["summary"]
 
 
+def cmd_transform_staging(settings: Settings, args: argparse.Namespace) -> Any:
+    from .transform import build_staging
+
+    with stage(settings, args.run_id, "transform_staging") as ctx:
+        return build_staging(settings, args.run_id, ctx)
+
+
+def cmd_build_curated(settings: Settings, args: argparse.Namespace) -> Any:
+    from .transform import build_curated
+
+    with stage(settings, args.run_id, "build_curated") as ctx:
+        return build_curated(settings, args.run_id, ctx)
+
+
+def cmd_validate_curated(settings: Settings, args: argparse.Namespace) -> Any:
+    from .validate import validate_curated
+
+    with stage(settings, args.run_id, "validate_curated") as ctx:
+        report = validate_curated(settings, args.run_id, ctx, include_database=not args.skip_database)
+    return report["summary"]
+
+
 def cmd_raw_stats(settings: Settings, args: argparse.Namespace) -> Any:
     from .ingest import load_checkpoint, raw_summary
 
@@ -81,6 +103,9 @@ COMMANDS: dict[str, tuple[Handler, str]] = {
     "ingest": (cmd_ingest, "Ingest the source into the raw layer (full or incremental)"),
     "validate-raw": (cmd_validate_raw, "Run raw-layer data-quality checks"),
     "raw-stats": (cmd_raw_stats, "Show committed raw batches, row and duplicate counts"),
+    "transform-staging": (cmd_transform_staging, "Raw -> staging (typed, deduplicated, quarantine)"),
+    "build-curated": (cmd_build_curated, "Staging -> curated station-day and model-ready tables"),
+    "validate-curated": (cmd_validate_curated, "Run curated-layer data-quality checks"),
 }
 
 
@@ -99,6 +124,8 @@ def build_parser() -> argparse.ArgumentParser:
                    help="alias for --mode full")
     p.add_argument("--stop-after-batches", type=int, default=None,
                    help="simulate a crash after committing N batches (recovery demonstration)")
+    parsers["validate-curated"].add_argument("--skip-database", action="store_true",
+                                             help="skip the PostgreSQL consistency check (CON-04)")
     return parser
 
 

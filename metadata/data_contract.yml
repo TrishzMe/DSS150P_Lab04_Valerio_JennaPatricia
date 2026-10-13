@@ -27,9 +27,10 @@ columns:
   - {name: City,          staging_name: city,             type: string,    nullable: true,  null_fill: Unknown}
   - {name: Location,      staging_name: location,         type: string,    nullable: true,  null_fill: Unknown}
   - {name: Coordinates,   staging_name: coordinates,      type: string,    nullable: true,  note: "not used downstream (dropped, as in the original project)"}
+  # Values are quoted on purpose: unquoted YAML reads the pollutant NO (nitric oxide) as boolean false.
   - {name: Pollutant,     staging_name: pollutant,        type: string,    nullable: false, on_violation: quarantine,
-     allowed_values: [BC, CO, NO, NO2, NOX, O3, PM1, PM10, PM2.5, RELATIVEHUMIDITY, SO2, TEMPERATURE, UM003],
-     in_scope_values: [PM2.5, PM10, NO2, O3, SO2, CO]}
+     allowed_values: ["BC", "CO", "NO", "NO2", "NOX", "O3", "PM1", "PM10", "PM2.5", "RELATIVEHUMIDITY", "SO2", "TEMPERATURE", "UM003"],
+     in_scope_values: ["PM2.5", "PM10", "NO2", "O3", "SO2", "CO"]}
   - {name: Source Name,   staging_name: source_name,      type: string,    nullable: false, on_violation: warn}
   - {name: Unit,          staging_name: unit,             type: string,    nullable: false, on_violation: quarantine,
      allowed_values: ["µg/m³", ppm, c, "%", "particles/cm³"], in_scope_values: ["µg/m³"]}
@@ -96,6 +97,8 @@ checks:
   - {id: VAL-03, layer: staging, category: validity,     on_violation: quarantine, rule: "pollutant and unit in allowed_values"}
   - {id: INV-01, layer: staging, category: validity,     on_violation: fail,       rule: "quarantined invalid share <= transform.max_invalid_row_rate"}
   - {id: UNQ-02, layer: staging, category: uniqueness,   on_violation: fail,       rule: "(location, pollutant, last_updated_utc) unique"}
+  - {id: REC-01, layer: staging, category: consistency,  on_violation: fail,       rule: "raw rows == staging rows + quarantined rows (nothing dropped silently)"}
+  - {id: DET-01, layer: curated, category: consistency,  on_violation: fail,       rule: "curated tables are in the declared total order (location, reading_date, country_label, city)"}
   - {id: UNQ-03, layer: curated, category: uniqueness,   on_violation: fail,       rule: "station_day_key unique"}
   - {id: CMP-02, layer: curated, category: completeness, on_violation: fail,       rule: "model-ready pm25, no2, o3 have no nulls"}
   - {id: VAL-04, layer: curated, category: validity,     on_violation: fail,       rule: "air_quality in {Safe, Unhealthy}; missing flags in {0,1}; pollutant values >= 0"}
