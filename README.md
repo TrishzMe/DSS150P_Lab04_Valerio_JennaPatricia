@@ -313,7 +313,7 @@ Model binaries (`*.joblib`) are regenerated, not committed.
 ├── docker/    airflow/ (Airflow image + start script)
 ├── tests/     test_unit.py  test_integration.py  test_data_quality.py  conftest.py
 ├── scripts/   demo_ingest_recovery.py  demo_rerun_no_duplicates.py  failure_drills.py  airflow_demo.py  make_diagrams.py
-├── baseline/  replay_notebook.py (replays the original notebook's modelling code)
+├── baseline/  original/ (byte-identical notebook + paper)  replay_notebook.py
 ├── outputs/   metrics.json  predictions.csv  model/  reproducibility_comparison.json  ...
 └── docs/      architecture.png  lineage.png  runbook.md  benchmark_report.md  reproducibility_report.md
                lifecycle_and_gaps.md  evidence/
@@ -330,8 +330,7 @@ section 6 of the brief.
   - `benchmark.py`: storage experiment and partitions;
   - `observability.py`: logs and run records;
   - `io_utils.py`: checksums and atomic writes.
-- **`baseline/`** holds a verbatim replay of the original notebook's modelling code, used to capture the baseline split.
-  The original notebook and paper are not included (the brief does not require them); they are cited in section 14.
+- **`baseline/`** holds the original group work (unchanged) and a verbatim replay of its modelling code.
 - **`scripts/`** holds evidence and demo drivers.
 - **`docker/airflow/`** holds the Airflow image.
 - **`docs/lifecycle_and_gaps.md`** is the Phase I analysis.
@@ -359,8 +358,7 @@ The full list is in [docs/runbook.md](docs/runbook.md).
 - **Prior group work:** S. Grino, B. J. Perez and J. P. Valerio, *Predicting PM2.5 Air Quality Exceedances Using Machine
   Learning: A Co-Pollutant Chemistry Approach*, Predictive Analytics group project, School of Data Science, Mapúa University.
   - **Reused, as allowed by lab section 4.1:** the problem statement, target definition, feature definitions,
-    preprocessing steps, model families, hyperparameters and reported metrics (recorded in
-    `metadata/expected_metrics.json` and `docs/lifecycle_and_gaps.md`).
+    preprocessing steps, model families, hyperparameters and reported metrics (`baseline/original/`).
   - **Individual work for this laboratory:** the engineering implementation, tests and documentation.
 
 ## 15. AI use acknowledgement
