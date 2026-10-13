@@ -1,9 +1,9 @@
 """Replay the original group notebook's modelling logic and capture its split.
 
 The original notebook never saved which rows were in its training and test sets. This script runs
-the notebook's own code (cells 1, 3, 5, 9, 11 and 14 of
-baseline/original/Predictive_Final_Project_code.ipynb, verbatim apart from removed print/plot
-statements) and records:
+the notebook's own code (cells 1, 3, 5, 9, 11 and 14 of the group's
+Predictive_Final_Project_code.ipynb, which is not included in this repository; verbatim apart from
+removed print/plot statements) and records:
   * the metrics it produces (to confirm the replay matches the saved notebook outputs), and
   * checksums of the station-day keys in its train and test sets.
 

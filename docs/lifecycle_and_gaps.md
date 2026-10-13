@@ -1,7 +1,8 @@
 # Phase I — Lifecycle Mapping, Baseline Capture and Engineering Gaps
 
 This document reconstructs what the original Predictive Analytics group project
-(`baseline/original/Predictive_Final_Project_code.ipynb`, paper in `baseline/original/paper.md`)
+(notebook `Predictive_Final_Project_code.ipynb` and the project paper; not included in this repository,
+cited in README section 14)
 actually did, records its result as the baseline to reproduce, and lists the engineering gaps
 this repository closes.
 

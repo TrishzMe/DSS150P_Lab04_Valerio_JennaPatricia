@@ -1,5 +1,5 @@
 {
-  "description": "Baseline results of the original Predictive Analytics group project, captured from the saved cell outputs of baseline/original/Predictive_Final_Project_code.ipynb (6 d.p.; the paper baseline/original/paper.md reports the same values rounded to 3 d.p.).",
+  "description": "Baseline results of the original Predictive Analytics group project, captured from the saved cell outputs of the group notebook Predictive_Final_Project_code.ipynb (6 d.p.; the project paper reports the same values rounded to 3 d.p.). Neither file is included in this repository; baseline/replay_notebook.py re-runs the notebook's code and reproduces these values.",
   "baseline_project": "Predicting PM2.5 Air Quality Exceedances Using Machine Learning: A Co-Pollutant Chemistry Approach (Grino, Perez, Valerio)",
   "source_sha256": "2b2202a0fa1cffdeddf803e54dd7f822812d86de3a6449c03798bb872b272f10",
   "baseline_environment": {

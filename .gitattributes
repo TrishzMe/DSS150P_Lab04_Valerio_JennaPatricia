@@ -3,12 +3,8 @@
 
 # The source dataset is checksum-verified: git must never rewrite its bytes (it is CRLF + UTF-8 BOM).
 data/source/*.csv -text
-# Verbatim copies of the original group project must stay byte-identical as well.
-baseline/original/** -text
 
-# GitHub language statistics: the original group notebook is reference material, not this repository's
-# code, so it is excluded; SQL files are counted (GitHub ignores them by default).
-baseline/original/** linguist-vendored
+# GitHub language statistics: count the SQL files too (GitHub ignores them by default).
 *.sql linguist-detectable
 
 *.parquet binary
