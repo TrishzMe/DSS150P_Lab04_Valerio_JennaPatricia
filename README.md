@@ -365,13 +365,14 @@ The full list is in [docs/runbook.md](docs/runbook.md).
 
 ## 15. AI use acknowledgement
 
-In line with the DSS150P generative-AI policy (lab section 16): this repository was developed with the help of an AI
-coding assistant (Claude, by Anthropic), used under my direction for:
-- code drafting;
-- debugging;
-- test design;
-- documentation drafting.
+In line with the DSS150P generative-AI policy (lab section 16), I used an AI coding assistant, Claude Code (Anthropic),
+to build this repository.
 
-I reviewed, ran and tested every component. All metrics, counts and evidence files in this repository come from
-actual pipeline runs on my machine, not from the assistant. I am responsible for the submitted work and can explain its
-implementation, failure behaviour and design decisions.
+- **My contribution:** the data-cleaning rules, engineered features and model setup that this pipeline reproduces
+  come from the group project I co-authored. For this laboratory I directed the work, made the design decisions and
+  reviewed the results.
+- **The assistant's contribution:** writing the pipeline code, the Docker/Airflow setup, the tests and the
+  documentation drafts, and running them on my machine.
+
+All metrics and evidence come from real runs of this pipeline and can be re-checked with `python -m pytest`. I am
+responsible for this submission and can explain how it works.
