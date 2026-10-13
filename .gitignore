@@ -23,11 +23,11 @@ data/benchmark/*
 # --- generated run artefacts ---
 logs/
 outputs/runs/
-outputs/variants/
 outputs/failure_drills/
 outputs/model/*
 !outputs/model/.gitkeep
 !outputs/model/model_card.json
+outputs/variants/*/model/*.joblib
 
 # --- Airflow local state ---
 airflow_home/

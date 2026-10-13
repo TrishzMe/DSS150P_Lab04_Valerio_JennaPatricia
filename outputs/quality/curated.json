@@ -1,7 +1,7 @@
 {
-  "pipeline_run_id": "dev_m05_run2",
+  "pipeline_run_id": "dev_runall_2",
   "layer": "curated",
-  "generated_at_utc": "2026-10-13T10:36:42.108+00:00",
+  "generated_at_utc": "2026-10-13T10:49:15.780+00:00",
   "status": "passed",
   "summary": {
     "checks": 10,

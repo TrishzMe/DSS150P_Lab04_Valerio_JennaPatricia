@@ -1,0 +1,343 @@
+{
+  "pipeline_run_id": "dev_runall_2",
+  "generated_at_utc": "2026-10-13T10:49:24.823+00:00",
+  "impute_scope": "baseline",
+  "enforced": true,
+  "tolerance_rule": "|reproduced - expected| <= 0.0005 for every metric (3 decimal places); counts exact",
+  "primary_metric": {
+    "name": "gradient_boosting.cv_f1_weighted_mean",
+    "model": "gradient_boosting",
+    "metric": "cv_f1_weighted_mean",
+    "expected": 0.71221,
+    "reproduced": 0.71221,
+    "abs_diff": 0.0,
+    "tolerance": 0.0005,
+    "within_tolerance": true
+  },
+  "outcome": "matches_within_tolerance",
+  "passed": true,
+  "metrics": [
+    {
+      "model": "logistic_regression",
+      "metric": "test_accuracy",
+      "expected": 0.673004,
+      "reproduced": 0.673004,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "logistic_regression",
+      "metric": "test_precision_weighted",
+      "expected": 0.673589,
+      "reproduced": 0.673589,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "logistic_regression",
+      "metric": "test_recall_weighted",
+      "expected": 0.673004,
+      "reproduced": 0.673004,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "logistic_regression",
+      "metric": "test_f1_weighted",
+      "expected": 0.656994,
+      "reproduced": 0.656994,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "logistic_regression",
+      "metric": "cv_f1_weighted_mean",
+      "expected": 0.672786,
+      "reproduced": 0.672786,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "logistic_regression",
+      "metric": "cv_f1_weighted_std",
+      "expected": 0.023194,
+      "reproduced": 0.023194,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "logistic_regression",
+      "metric": "test_true_safe",
+      "expected": 98,
+      "reproduced": 98,
+      "abs_diff": 0,
+      "tolerance": 0,
+      "within_tolerance": true
+    },
+    {
+      "model": "random_forest",
+      "metric": "test_accuracy",
+      "expected": 0.71673,
+      "reproduced": 0.71673,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "random_forest",
+      "metric": "test_precision_weighted",
+      "expected": 0.715967,
+      "reproduced": 0.715967,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "random_forest",
+      "metric": "test_recall_weighted",
+      "expected": 0.71673,
+      "reproduced": 0.71673,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "random_forest",
+      "metric": "test_f1_weighted",
+      "expected": 0.716283,
+      "reproduced": 0.716283,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "random_forest",
+      "metric": "cv_f1_weighted_mean",
+      "expected": 0.707718,
+      "reproduced": 0.707718,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "random_forest",
+      "metric": "cv_f1_weighted_std",
+      "expected": 0.008398,
+      "reproduced": 0.008398,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "random_forest",
+      "metric": "test_true_safe",
+      "expected": 146,
+      "reproduced": 146,
+      "abs_diff": 0,
+      "tolerance": 0,
+      "within_tolerance": true
+    },
+    {
+      "model": "gradient_boosting",
+      "metric": "test_accuracy",
+      "expected": 0.705323,
+      "reproduced": 0.705323,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "gradient_boosting",
+      "metric": "test_precision_weighted",
+      "expected": 0.703983,
+      "reproduced": 0.703983,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "gradient_boosting",
+      "metric": "test_recall_weighted",
+      "expected": 0.705323,
+      "reproduced": 0.705323,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "gradient_boosting",
+      "metric": "test_f1_weighted",
+      "expected": 0.704445,
+      "reproduced": 0.704445,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "gradient_boosting",
+      "metric": "cv_f1_weighted_mean",
+      "expected": 0.71221,
+      "reproduced": 0.71221,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "gradient_boosting",
+      "metric": "cv_f1_weighted_std",
+      "expected": 0.006402,
+      "reproduced": 0.006402,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "gradient_boosting",
+      "metric": "test_true_safe",
+      "expected": 141,
+      "reproduced": 141,
+      "abs_diff": 0,
+      "tolerance": 0,
+      "within_tolerance": true
+    },
+    {
+      "model": "random_forest",
+      "metric": "feature_importance.o3",
+      "expected": 0.183439,
+      "reproduced": 0.183439,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "random_forest",
+      "metric": "feature_importance.ox_total_oxidant",
+      "expected": 0.180247,
+      "reproduced": 0.180247,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "random_forest",
+      "metric": "feature_importance.no2_o3_ratio",
+      "expected": 0.179825,
+      "reproduced": 0.179825,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "random_forest",
+      "metric": "feature_importance.co",
+      "expected": 0.157234,
+      "reproduced": 0.157234,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "random_forest",
+      "metric": "feature_importance.no2",
+      "expected": 0.15703,
+      "reproduced": 0.15703,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "random_forest",
+      "metric": "feature_importance.so2",
+      "expected": 0.120666,
+      "reproduced": 0.120666,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "random_forest",
+      "metric": "feature_importance.co_missing",
+      "expected": 0.012007,
+      "reproduced": 0.012007,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    },
+    {
+      "model": "random_forest",
+      "metric": "feature_importance.so2_missing",
+      "expected": 0.009552,
+      "reproduced": 0.009552,
+      "abs_diff": 0.0,
+      "tolerance": 0.0005,
+      "within_tolerance": true
+    }
+  ],
+  "counts": {
+    "model_ready_rows": {
+      "reproduced": 2628,
+      "expected": 2628,
+      "equal": true
+    },
+    "train_rows": {
+      "reproduced": 2102,
+      "expected": 2102,
+      "equal": true
+    },
+    "test_rows": {
+      "reproduced": 526,
+      "expected": 526,
+      "equal": true
+    },
+    "class_counts": {
+      "reproduced": {
+        "Safe": 1115,
+        "Unhealthy": 1513
+      },
+      "expected": {
+        "Unhealthy": 1513,
+        "Safe": 1115
+      },
+      "equal": true
+    },
+    "test_safe_rows": {
+      "reproduced": 223,
+      "expected": 223,
+      "equal": true
+    },
+    "source_sha256": {
+      "reproduced": "2b2202a0fa1cffdeddf803e54dd7f822812d86de3a6449c03798bb872b272f10",
+      "expected": "2b2202a0fa1cffdeddf803e54dd7f822812d86de3a6449c03798bb872b272f10",
+      "equal": true
+    },
+    "best_model": {
+      "reproduced": "gradient_boosting",
+      "expected": "gradient_boosting",
+      "equal": true
+    }
+  },
+  "split": {
+    "model_ready_key_checksum": {
+      "reproduced": "f54768a38c66efc349a733cba7cfcd17836ebeb3d51ce923d0b733aa78cf2aa2",
+      "expected": "f54768a38c66efc349a733cba7cfcd17836ebeb3d51ce923d0b733aa78cf2aa2",
+      "equal": true
+    },
+    "train_key_checksum": {
+      "reproduced": "09a5307e20f75203b9918975b321abac21a4f6ab18ed956080046ef00f4fd68c",
+      "expected": "09a5307e20f75203b9918975b321abac21a4f6ab18ed956080046ef00f4fd68c",
+      "equal": true
+    },
+    "test_key_checksum": {
+      "reproduced": "974f770a1bb953f713e18abe8c26d7cee9ce2063c599f5cce297a7e2c0e3c2ee",
+      "expected": "974f770a1bb953f713e18abe8c26d7cee9ce2063c599f5cce297a7e2c0e3c2ee",
+      "equal": true
+    }
+  },
+  "max_abs_diff": 0
+}

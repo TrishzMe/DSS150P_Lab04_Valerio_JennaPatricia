@@ -1,0 +1,33 @@
+{
+  "pipeline_run_id": "dev_runall_2",
+  "status": "success",
+  "started_at_utc": "2026-10-13T10:49:10.745+00:00",
+  "ended_at_utc": "2026-10-13T10:49:25.023+00:00",
+  "impute_scope": "baseline",
+  "counts": {
+    "raw_rows": 54255,
+    "staging_rows": 30545,
+    "quarantined_rows": 23710,
+    "curated_station_day_rows": 11558,
+    "curated_model_ready_rows": 2628,
+    "train_rows": 2102,
+    "test_rows": 526,
+    "prediction_rows": 1578,
+    "postgres_prediction_rows": 1578
+  },
+  "best_model": "gradient_boosting",
+  "reproducibility_outcome": "matches_within_tolerance",
+  "stage_status": {
+    "ingest_source": "success",
+    "validate_raw": "success",
+    "transform_staging": "success",
+    "build_curated": "success",
+    "partition_staging": "success",
+    "load_postgres": "success",
+    "validate_curated": "success",
+    "train_model": "success",
+    "evaluate_model": "success",
+    "reproducibility_check": "success",
+    "publish_outputs": "success"
+  }
+}

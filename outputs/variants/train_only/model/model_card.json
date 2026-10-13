@@ -1,0 +1,117 @@
+{
+  "pipeline_run_id": "dev_m07_variant",
+  "trained_at_utc": "2026-10-13T10:46:19.438+00:00",
+  "task": "binary classification: air_quality (Unhealthy if station-day PM2.5 > 15 µg/m³)",
+  "training_data": {
+    "file": "data/curated/model_ready.parquet",
+    "source_sha256": "2b2202a0fa1cffdeddf803e54dd7f822812d86de3a6449c03798bb872b272f10",
+    "model_ready_key_checksum": "f54768a38c66efc349a733cba7cfcd17836ebeb3d51ce923d0b733aa78cf2aa2",
+    "train_key_checksum": "09a5307e20f75203b9918975b321abac21a4f6ab18ed956080046ef00f4fd68c"
+  },
+  "features": [
+    "no2",
+    "o3",
+    "so2",
+    "co",
+    "so2_missing",
+    "co_missing",
+    "ox_total_oxidant",
+    "no2_o3_ratio"
+  ],
+  "target": "air_quality",
+  "impute_scope": "train_only",
+  "imputation_medians": {
+    "so2": 6.0,
+    "co": 600.0
+  },
+  "seeds": {
+    "global_seed": 42,
+    "split_random_state": 42,
+    "cv_random_state": 42
+  },
+  "threading": "threadpoolctl limits=1 during fit and cross-validation",
+  "environment": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "numpy": "2.5.4",
+    "pandas": "3.0.6",
+    "scikit_learn": "1.9.1",
+    "scipy": "1.18.1"
+  },
+  "models": {
+    "logistic_regression": {
+      "file": "outputs/variants/train_only/model/logistic_regression.joblib",
+      "sha256": "e7fa3089e52eb77799356d0bc41037b585b9938e5d751c2043897d83872668a2",
+      "estimator": "sklearn.linear_model.LogisticRegression",
+      "params": {
+        "C": 1.0,
+        "class_weight": null,
+        "dual": false,
+        "fit_intercept": true,
+        "intercept_scaling": 1,
+        "l1_ratio": 0.0,
+        "max_iter": 1000,
+        "n_jobs": null,
+        "penalty": "deprecated",
+        "random_state": null,
+        "solver": "lbfgs",
+        "tol": 0.0001,
+        "verbose": 0,
+        "warm_start": false
+      }
+    },
+    "random_forest": {
+      "file": "outputs/variants/train_only/model/random_forest.joblib",
+      "sha256": "0a10ae740880227477989870ea8b5a547ae7f6e4c799b95ce6bd3161cc797b98",
+      "estimator": "sklearn.ensemble.RandomForestClassifier",
+      "params": {
+        "bootstrap": true,
+        "ccp_alpha": 0.0,
+        "class_weight": null,
+        "criterion": "gini",
+        "max_depth": null,
+        "max_features": "sqrt",
+        "max_leaf_nodes": null,
+        "max_samples": null,
+        "min_impurity_decrease": 0.0,
+        "min_samples_leaf": 1,
+        "min_samples_split": 2,
+        "min_weight_fraction_leaf": 0.0,
+        "monotonic_cst": null,
+        "n_estimators": 200,
+        "n_jobs": null,
+        "oob_score": false,
+        "random_state": 42,
+        "verbose": 0,
+        "warm_start": false
+      }
+    },
+    "gradient_boosting": {
+      "file": "outputs/variants/train_only/model/gradient_boosting.joblib",
+      "sha256": "8ddb5887628bd5e012c4c66f8b374140e2371ff414796c516729acb6f1787800",
+      "estimator": "sklearn.ensemble.GradientBoostingClassifier",
+      "params": {
+        "ccp_alpha": 0.0,
+        "criterion": "deprecated",
+        "init": null,
+        "learning_rate": 0.1,
+        "loss": "log_loss",
+        "max_depth": 3,
+        "max_features": null,
+        "max_leaf_nodes": null,
+        "min_impurity_decrease": 0.0,
+        "min_samples_leaf": 1,
+        "min_samples_split": 2,
+        "min_weight_fraction_leaf": 0.0,
+        "n_estimators": 200,
+        "n_iter_no_change": null,
+        "random_state": 42,
+        "subsample": 1.0,
+        "tol": 0.0001,
+        "validation_fraction": 0.1,
+        "verbose": 0,
+        "warm_start": false
+      }
+    }
+  }
+}

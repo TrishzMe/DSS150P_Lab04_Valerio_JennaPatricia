@@ -131,6 +131,83 @@ def cmd_benchmark(settings: Settings, args: argparse.Namespace) -> Any:
                   "equivalent": v["equivalent_to_staging"]} for fmt, v in report["formats"].items()}
 
 
+def cmd_train(settings: Settings, args: argparse.Namespace) -> Any:
+    from .train import train
+
+    RunRecord(settings, args.run_id).update_parameters(impute_scope=settings["model"]["impute_scope"])
+    with stage(settings, args.run_id, "train_model") as ctx:
+        return train(settings, args.run_id, ctx)
+
+
+def cmd_evaluate(settings: Settings, args: argparse.Namespace) -> Any:
+    from .evaluate import evaluate
+
+    with stage(settings, args.run_id, "evaluate_model") as ctx:
+        return evaluate(settings, args.run_id, ctx)
+
+
+def cmd_reproducibility_check(settings: Settings, args: argparse.Namespace) -> Any:
+    from .evaluate import reproducibility_check
+
+    with stage(settings, args.run_id, "reproducibility_check") as ctx:
+        return reproducibility_check(settings, args.run_id, ctx)
+
+
+def cmd_publish(settings: Settings, args: argparse.Namespace) -> Any:
+    from .evaluate import publish, write_run_summary
+    from .storage import sync_run_record
+
+    with stage(settings, args.run_id, "publish_outputs") as ctx:
+        result = publish(settings, args.run_id, ctx)
+    RunRecord(settings, args.run_id).finalize("success")
+    summary = write_run_summary(settings, args.run_id,
+                                pg_predictions=result["summary"]["counts"]["postgres_prediction_rows"])
+    sync_run_record(settings, args.run_id)
+    return summary
+
+
+PIPELINE_SEQUENCE = [
+    ("ingest", "ingest_source"),
+    ("validate-raw", "validate_raw"),
+    ("transform-staging", "transform_staging"),
+    ("build-curated", "build_curated"),
+    ("partition", "partition_staging"),
+    ("load-postgres", "load_postgres"),
+    ("validate-curated", "validate_curated"),
+    ("train", "train_model"),
+    ("evaluate", "evaluate_model"),
+    ("reproducibility-check", "reproducibility_check"),
+    ("publish", "publish_outputs"),
+]
+
+
+def cmd_run_all(settings: Settings, args: argparse.Namespace) -> Any:
+    """Run every stage in order with one pipeline_run_id; stop at the first failure."""
+    record = RunRecord(settings, args.run_id)
+    record.update_parameters(orchestrator="cli run-all", ingest_mode=args.mode,
+                             impute_scope=settings["model"]["impute_scope"])
+    defaults = argparse.Namespace(run_id=args.run_id, mode=args.mode, stop_after_batches=None, force=False,
+                                  skip_database=False, select=settings["storage"]["benchmark_filter"]["pollutant"])
+    for command, _ in PIPELINE_SEQUENCE:
+        handler, _ = COMMANDS[command]
+        try:
+            handler(settings, defaults)
+        except Exception:
+            record.finalize("failed")
+            try:
+                from .storage import sync_run_record
+
+                sync_run_record(settings, args.run_id)
+            except Exception as sync_exc:  # noqa: BLE001 - the database may be the thing that failed
+                log_event("audit_sync_failed", level=logging.WARNING, pipeline_run_id=args.run_id,
+                          error=str(sync_exc))
+            raise
+    from .io_utils import read_json
+    from .train import output_dir
+
+    return read_json(output_dir(settings) / "run_summary.json")
+
+
 def cmd_raw_stats(settings: Settings, args: argparse.Namespace) -> Any:
     from .ingest import load_checkpoint, raw_summary
 
@@ -160,6 +237,11 @@ COMMANDS: dict[str, tuple[Handler, str]] = {
     "sync-audit": (cmd_sync_audit, "Copy the run record of --run-id into audit.pipeline_runs/task_runs"),
     "partition": (cmd_partition, "Write pollutant-partitioned Parquet; --select VALUE loads one partition"),
     "benchmark": (cmd_benchmark, "CSV / JSONL / Parquet / PostgreSQL storage benchmark + report"),
+    "train": (cmd_train, "Build model input (imputation + deterministic split) and fit the models"),
+    "evaluate": (cmd_evaluate, "Evaluate on the held-out test set + 5-fold CV; write metrics/predictions"),
+    "reproducibility-check": (cmd_reproducibility_check, "Compare metrics/split with the baseline (tolerance)"),
+    "publish": (cmd_publish, "Publish predictions/metrics to PostgreSQL and close the run record"),
+    "run-all": (cmd_run_all, "Run the whole pipeline once with a single run id"),
 }
 
 
@@ -168,16 +250,18 @@ def build_parser() -> argparse.ArgumentParser:
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--config", help="Path to settings.yml (default: config/settings.yml)")
     parser.add_argument("--run-id", help="Pipeline run id shared by all stages (default: $PIPELINE_RUN_ID or new)")
+    parser.add_argument("--impute-scope", choices=["baseline", "train_only"],
+                        help="override model.impute_scope (baseline = original notebook behaviour)")
     sub = parser.add_subparsers(dest="command", required=True)
     parsers = {name: sub.add_parser(name, help=help_text) for name, (_, help_text) in COMMANDS.items()}
 
-    p = parsers["ingest"]
-    p.add_argument("--mode", choices=["incremental", "full"], default="incremental",
-                   help="incremental: append uncommitted batches only; full: fresh run-specific copy + rebuild all batches")
-    p.add_argument("--force", "--full-refresh", dest="force", action="store_true",
-                   help="alias for --mode full")
-    p.add_argument("--stop-after-batches", type=int, default=None,
-                   help="simulate a crash after committing N batches (recovery demonstration)")
+    for name in ("ingest", "run-all"):
+        p = parsers[name]
+        p.add_argument("--mode", choices=["incremental", "full"], default="incremental",
+                       help="incremental: append uncommitted batches only; full: fresh run-specific copy + rebuild all batches")
+        p.add_argument("--force", "--full-refresh", dest="force", action="store_true", help="alias for --mode full")
+    parsers["ingest"].add_argument("--stop-after-batches", type=int, default=None,
+                                   help="simulate a crash after committing N batches (recovery demonstration)")
     parsers["validate-curated"].add_argument("--skip-database", action="store_true",
                                              help="skip the PostgreSQL consistency check (CON-04)")
     parsers["partition"].add_argument("--select", help="partition value to load and verify, e.g. PM2.5")
@@ -188,8 +272,9 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if getattr(args, "force", False):
         args.mode = "full"
+    overrides = {"model": {"impute_scope": args.impute_scope}} if args.impute_scope else None
     try:
-        settings = load_settings(config_path=args.config)
+        settings = load_settings(config_path=args.config, overrides=overrides)
     except ConfigError as exc:
         print(f"CONFIG ERROR: {exc}", file=sys.stderr)
         return EXIT_CONFIG

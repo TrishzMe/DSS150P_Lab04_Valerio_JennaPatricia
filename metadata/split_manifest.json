@@ -1,0 +1,24 @@
+{
+  "description": "Baseline train/test split of the original notebook, captured by baseline/replay_notebook.py. The pipeline's split must reproduce these key checksums (check PRD-04).",
+  "method": "sklearn.model_selection.train_test_split",
+  "stratified": true,
+  "shuffle": true,
+  "test_size": 0.2,
+  "random_state": 42,
+  "row_order": "notebook order: pivot_table index order, then sort_values(['Location', 'Date'])",
+  "identifier": "station_day_key = sha256(country_label, city, location, reading_date)",
+  "model_ready_rows": 2628,
+  "train_rows": 2102,
+  "test_rows": 526,
+  "train_class_counts": {
+    "Safe": 892,
+    "Unhealthy": 1210
+  },
+  "test_class_counts": {
+    "Safe": 223,
+    "Unhealthy": 303
+  },
+  "model_ready_key_checksum": "f54768a38c66efc349a733cba7cfcd17836ebeb3d51ce923d0b733aa78cf2aa2",
+  "train_key_checksum": "09a5307e20f75203b9918975b321abac21a4f6ab18ed956080046ef00f4fd68c",
+  "test_key_checksum": "974f770a1bb953f713e18abe8c26d7cee9ce2063c599f5cce297a7e2c0e3c2ee"
+}
