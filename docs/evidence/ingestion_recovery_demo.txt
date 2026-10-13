@@ -1,0 +1,191 @@
+Checkpointed ingestion recovery demonstration
+Generated: 2026-10-13T10:24:24+00:00
+Python: 3.12.10  Command prefix: python -m src.cli
+====================================================================================================
+
+## 1. First run (full refresh) - deliberately interrupted after 2 committed batches
+$ python -m src.cli --run-id demo_20261013T102424Z_run1 ingest --mode full --stop-after-batches 2
+exit code: 3 (expected 3) -> OK
+{"ts": "2026-10-13T10:24:24.812+00:00", "level": "INFO", "event": "stage_started", "pipeline_run_id": "demo_20261013T102424Z_run1", "stage": "ingest_source"}
+{"ts": "2026-10-13T10:24:24.996+00:00", "level": "INFO", "event": "full_snapshot_copied", "pipeline_run_id": "demo_20261013T102424Z_run1", "stage": "ingest", "raw_file": "data/raw/full/run=demo_20261013T102424Z_run1/world_air_quality.csv", "raw_checksum": "2b2202a0fa1cffdeddf803e54dd7f822812d86de3a6449c03798bb872b272f10", "row_count": 54255}
+{"ts": "2026-10-13T10:24:25.446+00:00", "level": "INFO", "event": "batch_committed", "pipeline_run_id": "demo_20261013T102424Z_run1", "stage": "ingest", "batch_id": 1, "row_count": 10851, "row_start": 1, "row_end": 10851}
+{"ts": "2026-10-13T10:24:25.511+00:00", "level": "INFO", "event": "batch_committed", "pipeline_run_id": "demo_20261013T102424Z_run1", "stage": "ingest", "batch_id": 2, "row_count": 10851, "row_start": 10852, "row_end": 21702}
+{"ts": "2026-10-13T10:24:25.522+00:00", "level": "ERROR", "event": "stage_failed", "pipeline_run_id": "demo_20261013T102424Z_run1", "stage": "ingest_source", "duration_s": 0.6977, "row_counts": {}, "error": "SimulatedInterruption: Simulated interruption after committing 2 batch(es) (last batch 2); rerun ingest to resume from batch 3.", "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\jenna\\Downloads\\DSS150P_Lab04_Valerio_JennaPatricia\\src\\observability.py\", line 183, in stage\n    yield ctx\n  File \"C:\\Users\\jenna\\Downloads\\DSS150P_Lab04_Valerio_JennaPatricia\\src\\cli.py\", line 53, in cmd_ingest\n    return ingest(settings, args.run_id, mode=args.mode, stop_after_batches=args.stop_after_batches, ctx=ctx)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\jenna\\Downloads\\DSS150P_Lab04_Valerio_JennaPatricia\\src\\ingest.py\", line 248, in ingest\n    raise SimulatedInterruption(\nsrc.ingest.SimulatedInterruption: Simulated interruption after committing 2 batch(es) (last batch 2); rerun ingest to resume from batch 3.\n"}
+{"ts": "2026-10-13T10:24:25.522+00:00", "level": "ERROR", "event": "command_failed", "command": "ingest", "pipeline_run_id": "demo_20261013T102424Z_run1", "error_type": "SimulatedInterruption", "error": "Simulated interruption after committing 2 batch(es) (last batch 2); rerun ingest to resume from batch 3."}
+
+## 2. Checkpoint state after the interruption
+$ python -m src.cli raw-stats
+exit code: 0 (expected 0) -> OK
+{
+  "committed_batches": 2,
+  "num_batches": 5,
+  "last_committed_batch_id": 2,
+  "raw_rows": 21702,
+  "distinct_source_row_keys": 21702,
+  "duplicate_source_row_keys": 0,
+  "duplicate_record_hashes": 0,
+  "checkpoint": {
+    "checkpoint_type": "simulated_sequence_checkpoint (not a business watermark)",
+    "last_committed_batch_id": 2,
+    "last_committed_source_row_key": 21702,
+    "updated_at_utc": "2026-10-13T10:24:25.506+00:00"
+  },
+  "batches": {
+    "1": {
+      "row_start": 1,
+      "row_end": 10851,
+      "row_count": 10851,
+      "pipeline_run_id": "demo_20261013T102424Z_run1",
+      "committed_at_utc": "2026-10-13T10:24:25.441+00:00"
+    },
+    "2": {
+      "row_start": 10852,
+      "row_end": 21702,
+      "row_count": 10851,
+      "pipeline_run_id": "demo_20261013T102424Z_run1",
+      "committed_at_utc": "2026-10-13T10:24:25.506+00:00"
+    }
+  }
+}
+
+## 3. Resumed run (incremental) - must skip batches 1-2 and commit 3-5
+$ python -m src.cli --run-id demo_20261013T102424Z_run2 ingest --mode incremental
+exit code: 0 (expected 0) -> OK
+{"ts": "2026-10-13T10:24:27.371+00:00", "level": "INFO", "event": "stage_started", "pipeline_run_id": "demo_20261013T102424Z_run2", "stage": "ingest_source"}
+{"ts": "2026-10-13T10:24:27.859+00:00", "level": "INFO", "event": "batch_skipped_already_committed", "pipeline_run_id": "demo_20261013T102424Z_run2", "stage": "ingest", "batch_id": 1, "committed_by_run": "demo_20261013T102424Z_run1"}
+{"ts": "2026-10-13T10:24:27.861+00:00", "level": "INFO", "event": "batch_skipped_already_committed", "pipeline_run_id": "demo_20261013T102424Z_run2", "stage": "ingest", "batch_id": 2, "committed_by_run": "demo_20261013T102424Z_run1"}
+{"ts": "2026-10-13T10:24:27.958+00:00", "level": "INFO", "event": "batch_committed", "pipeline_run_id": "demo_20261013T102424Z_run2", "stage": "ingest", "batch_id": 3, "row_count": 10851, "row_start": 21703, "row_end": 32553}
+{"ts": "2026-10-13T10:24:28.016+00:00", "level": "INFO", "event": "batch_committed", "pipeline_run_id": "demo_20261013T102424Z_run2", "stage": "ingest", "batch_id": 4, "row_count": 10851, "row_start": 32554, "row_end": 43404}
+{"ts": "2026-10-13T10:24:28.074+00:00", "level": "INFO", "event": "batch_committed", "pipeline_run_id": "demo_20261013T102424Z_run2", "stage": "ingest", "batch_id": 5, "row_count": 10851, "row_start": 43405, "row_end": 54255}
+{"ts": "2026-10-13T10:24:28.120+00:00", "level": "INFO", "event": "stage_succeeded", "pipeline_run_id": "demo_20261013T102424Z_run2", "stage": "ingest_source", "duration_s": 0.7379, "row_counts": {"raw_rows": 54255, "raw_batches_committed": 5}, "batches_committed_this_run": [3, 4, 5], "batches_skipped": [1, 2], "mode": "incremental"}
+{
+  "mode": "incremental",
+  "batches_planned": 5,
+  "batches_committed_this_run": [
+    3,
+    4,
+    5
+  ],
+  "batches_skipped_already_committed": [
+    1,
+    2
+  ],
+  "full_snapshot": null,
+  "committed_batches": 5,
+  "num_batches": 5,
+  "last_committed_batch_id": 5,
+  "raw_rows": 54255,
+  "distinct_source_row_keys": 54255,
+  "duplicate_source_row_keys": 0,
+  "duplicate_record_hashes": 0
+}
+
+## 4. Rerun (incremental) - nothing new, every batch skipped
+$ python -m src.cli --run-id demo_20261013T102424Z_run3 ingest --mode incremental
+exit code: 0 (expected 0) -> OK
+{"ts": "2026-10-13T10:24:28.985+00:00", "level": "INFO", "event": "stage_started", "pipeline_run_id": "demo_20261013T102424Z_run3", "stage": "ingest_source"}
+{"ts": "2026-10-13T10:24:29.478+00:00", "level": "INFO", "event": "batch_skipped_already_committed", "pipeline_run_id": "demo_20261013T102424Z_run3", "stage": "ingest", "batch_id": 1, "committed_by_run": "demo_20261013T102424Z_run1"}
+{"ts": "2026-10-13T10:24:29.481+00:00", "level": "INFO", "event": "batch_skipped_already_committed", "pipeline_run_id": "demo_20261013T102424Z_run3", "stage": "ingest", "batch_id": 2, "committed_by_run": "demo_20261013T102424Z_run1"}
+{"ts": "2026-10-13T10:24:29.485+00:00", "level": "INFO", "event": "batch_skipped_already_committed", "pipeline_run_id": "demo_20261013T102424Z_run3", "stage": "ingest", "batch_id": 3, "committed_by_run": "demo_20261013T102424Z_run2"}
+{"ts": "2026-10-13T10:24:29.489+00:00", "level": "INFO", "event": "batch_skipped_already_committed", "pipeline_run_id": "demo_20261013T102424Z_run3", "stage": "ingest", "batch_id": 4, "committed_by_run": "demo_20261013T102424Z_run2"}
+{"ts": "2026-10-13T10:24:29.493+00:00", "level": "INFO", "event": "batch_skipped_already_committed", "pipeline_run_id": "demo_20261013T102424Z_run3", "stage": "ingest", "batch_id": 5, "committed_by_run": "demo_20261013T102424Z_run2"}
+{"ts": "2026-10-13T10:24:29.562+00:00", "level": "INFO", "event": "stage_succeeded", "pipeline_run_id": "demo_20261013T102424Z_run3", "stage": "ingest_source", "duration_s": 0.5675, "row_counts": {"raw_rows": 54255, "raw_batches_committed": 5}, "batches_committed_this_run": [], "batches_skipped": [1, 2, 3, 4, 5], "mode": "incremental"}
+{
+  "mode": "incremental",
+  "batches_planned": 5,
+  "batches_committed_this_run": [],
+  "batches_skipped_already_committed": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "full_snapshot": null,
+  "committed_batches": 5,
+  "num_batches": 5,
+  "last_committed_batch_id": 5,
+  "raw_rows": 54255,
+  "distinct_source_row_keys": 54255,
+  "duplicate_source_row_keys": 0,
+  "duplicate_record_hashes": 0
+}
+
+## 5. Raw-layer data-quality checks
+$ python -m src.cli --run-id demo_20261013T102424Z_run3 validate-raw
+exit code: 0 (expected 0) -> OK
+{"ts": "2026-10-13T10:24:30.427+00:00", "level": "INFO", "event": "stage_started", "pipeline_run_id": "demo_20261013T102424Z_run3", "stage": "validate_raw"}
+{"ts": "2026-10-13T10:24:30.882+00:00", "level": "INFO", "event": "dq_check", "pipeline_run_id": "demo_20261013T102424Z_run3", "stage": "validate_raw", "check_id": "SRC-01", "check": "source checksum matches manifest", "category": "freshness_applicability", "status": "pass", "observed": "2b2202a0fa1cffdeddf803e54dd7f822812d86de3a6449c03798bb872b272f10", "expected": "2b2202a0fa1cffdeddf803e54dd7f822812d86de3a6449c03798bb872b272f10"}
+{"ts": "2026-10-13T10:24:30.882+00:00", "level": "INFO", "event": "dq_check", "pipeline_run_id": "demo_20261013T102424Z_run3", "stage": "validate_raw", "check_id": "CMP-00a", "check": "all planned batches committed", "category": "completeness", "status": "pass", "observed": 5, "expected": 5}
+{"ts": "2026-10-13T10:24:30.882+00:00", "level": "INFO", "event": "dq_check", "pipeline_run_id": "demo_20261013T102424Z_run3", "stage": "validate_raw", "check_id": "SCH-01", "check": "raw columns match contract", "category": "schema", "status": "pass", "observed": ["source_row_key", "Country Code", "City", "Location", "Coordinates", "Pollutant", "Source Name", "Unit", "Value", "Last Updated", "Country Label", "source_batch_id", "record_hash", "pipeline_run_id", "ingested_at_utc", "source_file", "source_checksum"], "expected": ["source_row_key", "Country Code", "City", "Location", "Coordinates", "Pollutant", "Source Name", "Unit", "Value", "Last Updated", "Country Label", "source_batch_id", "record_hash", "pipeline_run_id", "ingested_at_utc", "source_file", "source_checksum"]}
+{"ts": "2026-10-13T10:24:30.882+00:00", "level": "INFO", "event": "dq_check", "pipeline_run_id": "demo_20261013T102424Z_run3", "stage": "validate_raw", "check_id": "CMP-00", "check": "raw row count equals manifest", "category": "completeness", "status": "pass", "observed": 54255, "expected": 54255}
+{"ts": "2026-10-13T10:24:30.882+00:00", "level": "INFO", "event": "dq_check", "pipeline_run_id": "demo_20261013T102424Z_run3", "stage": "validate_raw", "check_id": "UNQ-01", "check": "source_row_key unique and contiguous", "category": "uniqueness", "status": "pass", "observed": {"rows": 54255, "distinct": 54255, "min": 1, "max": 54255}, "expected": {"distinct": 54255, "min": 1, "max": 54255}}
+{"ts": "2026-10-13T10:24:30.882+00:00", "level": "INFO", "event": "dq_check", "pipeline_run_id": "demo_20261013T102424Z_run3", "stage": "validate_raw", "check_id": "INT-01", "check": "batch files and record hashes untampered", "category": "consistency", "status": "pass", "observed": {"files_changed": [], "record_hash_mismatches": 0}, "expected": {"files_changed": [], "record_hash_mismatches": 0}}
+{"ts": "2026-10-13T10:24:30.882+00:00", "level": "INFO", "event": "dq_check", "pipeline_run_id": "demo_20261013T102424Z_run3", "stage": "validate_raw", "check_id": "UNQ-01b", "check": "no identical duplicate source records", "category": "uniqueness", "status": "pass", "observed": 0, "expected": 0}
+{"ts": "2026-10-13T10:24:30.894+00:00", "level": "INFO", "event": "stage_succeeded", "pipeline_run_id": "demo_20261013T102424Z_run3", "stage": "validate_raw", "duration_s": 0.4558, "row_counts": {"dq_raw_checks": 7, "dq_raw_failed": 0, "dq_raw_warnings": 0}}
+{
+  "checks": 7,
+  "passed": 7,
+  "failed": 0,
+  "warnings": 0
+}
+
+## 6. Final duplicate-count / row-count verification
+$ python -m src.cli raw-stats
+exit code: 0 (expected 0) -> OK
+{
+  "committed_batches": 5,
+  "num_batches": 5,
+  "last_committed_batch_id": 5,
+  "raw_rows": 54255,
+  "distinct_source_row_keys": 54255,
+  "duplicate_source_row_keys": 0,
+  "duplicate_record_hashes": 0,
+  "checkpoint": {
+    "checkpoint_type": "simulated_sequence_checkpoint (not a business watermark)",
+    "last_committed_batch_id": 5,
+    "last_committed_source_row_key": 54255,
+    "updated_at_utc": "2026-10-13T10:24:28.070+00:00"
+  },
+  "batches": {
+    "1": {
+      "row_start": 1,
+      "row_end": 10851,
+      "row_count": 10851,
+      "pipeline_run_id": "demo_20261013T102424Z_run1",
+      "committed_at_utc": "2026-10-13T10:24:25.441+00:00"
+    },
+    "2": {
+      "row_start": 10852,
+      "row_end": 21702,
+      "row_count": 10851,
+      "pipeline_run_id": "demo_20261013T102424Z_run1",
+      "committed_at_utc": "2026-10-13T10:24:25.506+00:00"
+    },
+    "3": {
+      "row_start": 21703,
+      "row_end": 32553,
+      "row_count": 10851,
+      "pipeline_run_id": "demo_20261013T102424Z_run2",
+      "committed_at_utc": "2026-10-13T10:24:27.953+00:00"
+    },
+    "4": {
+      "row_start": 32554,
+      "row_end": 43404,
+      "row_count": 10851,
+      "pipeline_run_id": "demo_20261013T102424Z_run2",
+      "committed_at_utc": "2026-10-13T10:24:28.011+00:00"
+    },
+    "5": {
+      "row_start": 43405,
+      "row_end": 54255,
+      "row_count": 10851,
+      "pipeline_run_id": "demo_20261013T102424Z_run2",
+      "committed_at_utc": "2026-10-13T10:24:28.070+00:00"
+    }
+  }
+}
+
+====================================================================================================
+VERIFICATION: raw_rows=54255 distinct_keys=54255 duplicate_keys=0 committed_batches=5
+RESULT: PASS

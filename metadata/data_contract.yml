@@ -83,8 +83,11 @@ expected_counts:
 checks:
   - {id: SRC-01, layer: source,  category: freshness_applicability, on_violation: fail,       rule: "file sha256/size/header/row count equal source_manifest.yml"}
   - {id: SCH-01, layer: raw,     category: schema,       on_violation: fail,       rule: "all contract columns present, in order, no extras"}
+  - {id: CMP-00a, layer: raw,    category: completeness, on_violation: fail,       rule: "every planned ingestion batch is committed"}
   - {id: UNQ-01, layer: raw,     category: uniqueness,   on_violation: fail,       rule: "source_row_key unique and contiguous 1..N across committed batches"}
+  - {id: UNQ-01b, layer: raw,    category: uniqueness,   on_violation: warn,       rule: "no two raw records share the same record_hash (identical source rows)"}
   - {id: CMP-00, layer: raw,     category: completeness, on_violation: fail,       rule: "raw row count equals manifest row_count"}
+  - {id: INT-01, layer: raw,     category: consistency,  on_violation: fail,       rule: "batch files match checkpoint SHA-256 and stored record_hash equals recomputed hash"}
   - {id: SCH-02, layer: staging, category: schema,       on_violation: quarantine, rule: "value parses as float"}
   - {id: SCH-03, layer: staging, category: schema,       on_violation: quarantine, rule: "last_updated parses as timestamp"}
   - {id: CMP-01, layer: staging, category: completeness, on_violation: quarantine, rule: "pollutant, unit, value, last_updated not null"}

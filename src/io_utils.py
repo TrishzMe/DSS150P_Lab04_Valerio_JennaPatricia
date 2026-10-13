@@ -30,9 +30,15 @@ def hash_fields(values: Iterable[Any]) -> str:
 
 
 def hash_rows(frame: pd.DataFrame, columns: list[str]) -> pd.Series:
-    """Row-wise deterministic hash over ``columns`` (used for record_hash / business keys)."""
-    joined = frame[columns].astype("string").fillna("").agg(HASH_FIELD_SEPARATOR.join, axis=1)
-    return joined.map(sha256_text)
+    """Row-wise deterministic hash over ``columns`` (used for record_hash / business keys).
+
+    Equivalent to ``hash_fields(row[columns])`` for every row, but vectorised.
+    """
+    parts = [frame[c].astype("string").fillna("") for c in columns]
+    joined = parts[0]
+    for part in parts[1:]:
+        joined = joined + HASH_FIELD_SEPARATOR + part
+    return pd.Series([sha256_text(s) for s in joined], index=frame.index, dtype="string")
 
 
 def digest_of_keys(keys: Iterable[str]) -> str:

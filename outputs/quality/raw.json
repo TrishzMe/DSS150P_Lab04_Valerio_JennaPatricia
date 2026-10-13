@@ -1,0 +1,149 @@
+{
+  "pipeline_run_id": "demo_20261013T102424Z_run3",
+  "layer": "raw",
+  "generated_at_utc": "2026-10-13T10:24:30.873+00:00",
+  "status": "passed",
+  "summary": {
+    "checks": 7,
+    "passed": 7,
+    "failed": 0,
+    "warnings": 0
+  },
+  "checks": [
+    {
+      "check_id": "SRC-01",
+      "name": "source checksum matches manifest",
+      "category": "freshness_applicability",
+      "layer": "raw",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": "2b2202a0fa1cffdeddf803e54dd7f822812d86de3a6449c03798bb872b272f10",
+      "expected": "2b2202a0fa1cffdeddf803e54dd7f822812d86de3a6449c03798bb872b272f10",
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "CMP-00a",
+      "name": "all planned batches committed",
+      "category": "completeness",
+      "layer": "raw",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": 5,
+      "expected": 5,
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "SCH-01",
+      "name": "raw columns match contract",
+      "category": "schema",
+      "layer": "raw",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": [
+        "source_row_key",
+        "Country Code",
+        "City",
+        "Location",
+        "Coordinates",
+        "Pollutant",
+        "Source Name",
+        "Unit",
+        "Value",
+        "Last Updated",
+        "Country Label",
+        "source_batch_id",
+        "record_hash",
+        "pipeline_run_id",
+        "ingested_at_utc",
+        "source_file",
+        "source_checksum"
+      ],
+      "expected": [
+        "source_row_key",
+        "Country Code",
+        "City",
+        "Location",
+        "Coordinates",
+        "Pollutant",
+        "Source Name",
+        "Unit",
+        "Value",
+        "Last Updated",
+        "Country Label",
+        "source_batch_id",
+        "record_hash",
+        "pipeline_run_id",
+        "ingested_at_utc",
+        "source_file",
+        "source_checksum"
+      ],
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "CMP-00",
+      "name": "raw row count equals manifest",
+      "category": "completeness",
+      "layer": "raw",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": 54255,
+      "expected": 54255,
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "UNQ-01",
+      "name": "source_row_key unique and contiguous",
+      "category": "uniqueness",
+      "layer": "raw",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": {
+        "rows": 54255,
+        "distinct": 54255,
+        "min": 1,
+        "max": 54255
+      },
+      "expected": {
+        "distinct": 54255,
+        "min": 1,
+        "max": 54255
+      },
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "INT-01",
+      "name": "batch files and record hashes untampered",
+      "category": "consistency",
+      "layer": "raw",
+      "passed": true,
+      "on_violation": "fail",
+      "observed": {
+        "files_changed": [],
+        "record_hash_mismatches": 0
+      },
+      "expected": {
+        "files_changed": [],
+        "record_hash_mismatches": 0
+      },
+      "message": "",
+      "status": "pass"
+    },
+    {
+      "check_id": "UNQ-01b",
+      "name": "no identical duplicate source records",
+      "category": "uniqueness",
+      "layer": "raw",
+      "passed": true,
+      "on_violation": "warn",
+      "observed": 0,
+      "expected": 0,
+      "message": "identical records are kept in raw (faithful copy); staging deduplicates",
+      "status": "pass"
+    }
+  ]
+}
