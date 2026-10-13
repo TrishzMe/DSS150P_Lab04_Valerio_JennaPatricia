@@ -1,6 +1,6 @@
 {
-  "pipeline_run_id": "dev_runall_2",
-  "generated_at_utc": "2026-10-13T10:49:24.823+00:00",
+  "pipeline_run_id": "manual__2026-10-13T10:58:44.158423+00:00",
+  "generated_at_utc": "2026-10-13T11:09:03.542+00:00",
   "impute_scope": "baseline",
   "enforced": true,
   "tolerance_rule": "|reproduced - expected| <= 0.0005 for every metric (3 decimal places); counts exact",
@@ -9,8 +9,8 @@
     "model": "gradient_boosting",
     "metric": "cv_f1_weighted_mean",
     "expected": 0.71221,
-    "reproduced": 0.71221,
-    "abs_diff": 0.0,
+    "reproduced": 0.711814,
+    "abs_diff": 0.000396,
     "tolerance": 0.0005,
     "within_tolerance": true
   },
@@ -183,8 +183,8 @@
       "model": "gradient_boosting",
       "metric": "cv_f1_weighted_mean",
       "expected": 0.71221,
-      "reproduced": 0.71221,
-      "abs_diff": 0.0,
+      "reproduced": 0.711814,
+      "abs_diff": 0.000396,
       "tolerance": 0.0005,
       "within_tolerance": true
     },
@@ -192,8 +192,8 @@
       "model": "gradient_boosting",
       "metric": "cv_f1_weighted_std",
       "expected": 0.006402,
-      "reproduced": 0.006402,
-      "abs_diff": 0.0,
+      "reproduced": 0.006152,
+      "abs_diff": 0.00025,
       "tolerance": 0.0005,
       "within_tolerance": true
     },
@@ -339,5 +339,5 @@
       "equal": true
     }
   },
-  "max_abs_diff": 0
+  "max_abs_diff": 0.000396
 }

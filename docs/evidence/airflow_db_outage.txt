@@ -1,0 +1,111 @@
+Airflow evidence: db_outage
+Generated: 2026-10-13T10:58:42+00:00
+DAG: predictive_repro_pipeline   API: http://127.0.0.1:8081/api/v2
+====================================================================================================
+
+## [10:58:44] Stopping the warehouse database (docker compose stop postgres)
+Container dss150p_lab04_valerio_jennapatricia-postgres-1 Stopping 
+ Container dss150p_lab04_valerio_jennapatricia-postgres-1 Stopped
+
+## [10:58:44] Triggered run manual__2026-10-13T10:58:44.158423+00:00 with conf {'ingest_mode': 'incremental', 'impute_scope': 'baseline', 'selected_partition': 'PM2.5'}
+
+## [11:08:27] After retries were exhausted: run state=failed
+  build_curated            success          try=1  duration_s=5.51
+  evaluate_model           upstream_failed  try=0  duration_s=0.0
+  ingest_source            success          try=1  duration_s=4.77
+  load_postgres            failed           try=4  duration_s=40.99
+  partition_staging        success          try=1  duration_s=5.69
+  publish_outputs          upstream_failed  try=0  duration_s=0.0
+  reproducibility_check    upstream_failed  try=0  duration_s=0.0
+  train_model              upstream_failed  try=0  duration_s=0.0
+  transform_staging        success          try=1  duration_s=3.3
+  validate_curated         upstream_failed  try=0  duration_s=0.0
+  validate_raw             success          try=1  duration_s=5.41
+
+## load_postgres task log, attempt 1 (error lines)
+  INFO    {"ts": "2026-10-13T10:59:16.064+00:00", "level": "WARNING", "event": "db_connect_failed", "attempt": 1, "host": "postgres", "port": 5432, "error": "failed to resolve host 'postgres': [Errno -5] No address associated with hostname"}
+  INFO    {"ts": "2026-10-13T10:59:22.029+00:00", "level": "WARNING", "event": "db_connect_failed", "attempt": 2, "host": "postgres", "port": 5432, "error": "failed to resolve host 'postgres': [Errno -2] Name or service not known"}
+  INFO    {"ts": "2026-10-13T10:59:29.986+00:00", "level": "WARNING", "event": "db_connect_failed", "attempt": 3, "host": "postgres", "port": 5432, "error": "failed to resolve host 'postgres': [Errno -2] Name or service not known"}
+  INFO    {"ts": "2026-10-13T10:59:39.955+00:00", "level": "WARNING", "event": "db_connect_failed", "attempt": 4, "host": "postgres", "port": 5432, "error": "failed to resolve host 'postgres': [Errno -2] Name or service not known"}
+  INFO    {"ts": "2026-10-13T10:59:51.946+00:00", "level": "WARNING", "event": "db_connect_failed", "attempt": 5, "host": "postgres", "port": 5432, "error": "failed to resolve host 'postgres': [Errno -2] Name or service not known"}
+  INFO    {"ts": "2026-10-13T10:59:52.012+00:00", "level": "ERROR", "event": "stage_failed", "pipeline_run_id": "manual__2026-10-13T10:58:44.158423+00:00", "stage": "load_postgres", "duration_s": 40.3391, "row_counts": {}, "error": "DatabaseUnavailable: PostgreSQL at postgres:5432/air_quality unavailable after 5 attempts: failed to resolve host 'postgres': [Errno -2] Name or service not known", "traceback": "Traceback 
+  INFO    {"ts": "2026-10-13T10:59:52.030+00:00", "level": "ERROR", "event": "command_failed", "command": "load-postgres", "pipeline_run_id": "manual__2026-10-13T10:58:44.158423+00:00", "error_type": "DatabaseUnavailable", "error": "PostgreSQL at postgres:5432/air_quality unavailable after 5 attempts: failed to resolve host 'postgres': [Errno -2] Name or service not known"}
+  INFO    Command exited with return code 1
+  ERROR   Task failed with exception
+  WARNING TASK RETRY task_id=load_postgres run_id=manual__2026-10-13T10:58:44.158423+00:00 try_number=1 exception=AirflowException('Bash command failed. The command returned a non-zero exit code 1.')
+
+## load_postgres task log, attempt 4 (final failed attempt, error lines)
+  INFO    {"ts": "2026-10-13T11:07:32.835+00:00", "level": "WARNING", "event": "db_connect_failed", "attempt": 1, "host": "postgres", "port": 5432, "error": "failed to resolve host 'postgres': [Errno -2] Name or service not known"}
+  INFO    {"ts": "2026-10-13T11:07:38.803+00:00", "level": "WARNING", "event": "db_connect_failed", "attempt": 2, "host": "postgres", "port": 5432, "error": "failed to resolve host 'postgres': [Errno -2] Name or service not known"}
+  INFO    {"ts": "2026-10-13T11:07:46.775+00:00", "level": "WARNING", "event": "db_connect_failed", "attempt": 3, "host": "postgres", "port": 5432, "error": "failed to resolve host 'postgres': [Errno -2] Name or service not known"}
+  INFO    {"ts": "2026-10-13T11:07:56.750+00:00", "level": "WARNING", "event": "db_connect_failed", "attempt": 4, "host": "postgres", "port": 5432, "error": "failed to resolve host 'postgres': [Errno -2] Name or service not known"}
+  INFO    {"ts": "2026-10-13T11:08:08.700+00:00", "level": "WARNING", "event": "db_connect_failed", "attempt": 5, "host": "postgres", "port": 5432, "error": "failed to resolve host 'postgres': [Errno -2] Name or service not known"}
+  INFO    {"ts": "2026-10-13T11:08:08.766+00:00", "level": "ERROR", "event": "stage_failed", "pipeline_run_id": "manual__2026-10-13T10:58:44.158423+00:00", "stage": "load_postgres", "duration_s": 39.9722, "row_counts": {}, "error": "DatabaseUnavailable: PostgreSQL at postgres:5432/air_quality unavailable after 5 attempts: failed to resolve host 'postgres': [Errno -2] Name or service not known", "traceback": "Traceback 
+  INFO    {"ts": "2026-10-13T11:08:08.784+00:00", "level": "ERROR", "event": "command_failed", "command": "load-postgres", "pipeline_run_id": "manual__2026-10-13T10:58:44.158423+00:00", "error_type": "DatabaseUnavailable", "error": "PostgreSQL at postgres:5432/air_quality unavailable after 5 attempts: failed to resolve host 'postgres': [Errno -2] Name or service not known"}
+  INFO    Command exited with return code 1
+  ERROR   Task failed with exception
+  ERROR   TASK FAILED dag_id=predictive_repro_pipeline task_id=load_postgres run_id=manual__2026-10-13T10:58:44.158423+00:00 try_number=4 max_tries=3 exception=AirflowException('Bash command failed. The command returned a non-zero exit code 1.') -> see outputs/runs/<run>/run_record.json and logs/pipeline.jsonl; recover with `airflow tasks clear predictive_repro_pipeline -t load_postgres` once the cause is fixed (tasks 
+
+## [11:08:27] Run record while failed (outputs/runs/<run>/run_record.json: status + load_postgres)
+{
+  "status": "failed",
+  "load_postgres": {
+    "status": "failed",
+    "attempt": 4,
+    "started_at_utc": "2026-10-13T11:07:28.712+00:00",
+    "ended_at_utc": "2026-10-13T11:08:08.720+00:00",
+    "duration_s": 39.9722,
+    "row_counts": {},
+    "error": "DatabaseUnavailable: PostgreSQL at postgres:5432/air_quality unavailable after 5 attempts: failed to resolve host 'postgres': [Errno -2] Name or service not known"
+  }
+}
+
+## [11:08:27] outputs/run_summary.json still belongs to the previous successful run (nothing published)
+  pipeline_run_id=manual__2026-10-13T10:57:28.026641+00:00 (failed run: manual__2026-10-13T10:58:44.158423+00:00)
+
+## [11:08:28] Restarting the database (docker compose start postgres)
+Container dss150p_lab04_valerio_jennapatricia-postgres-1 Starting 
+ Container dss150p_lab04_valerio_jennapatricia-postgres-1 Started
+
+## [11:08:34] postgres health: healthy
+
+## [11:08:34] Cleared load_postgres and its downstream tasks for this run (POST clearTaskInstances)
+  load_postgres
+  reproducibility_check
+  train_model
+  publish_outputs
+  validate_curated
+  evaluate_model
+
+## [11:09:15] Recovered: run state=success
+  build_curated            success          try=1  duration_s=5.51
+  evaluate_model           success          try=1  duration_s=11.29
+  ingest_source            success          try=1  duration_s=4.77
+  load_postgres            success          try=5  duration_s=2.99
+  partition_staging        success          try=1  duration_s=5.69
+  publish_outputs          success          try=1  duration_s=3.72
+  reproducibility_check    success          try=1  duration_s=3.41
+  train_model              success          try=1  duration_s=5.33
+  transform_staging        success          try=1  duration_s=3.3
+  validate_curated         success          try=1  duration_s=3.3
+  validate_raw             success          try=1  duration_s=5.41
+
+## [11:09:15] outputs/run_summary.json after recovery (same run id)
+{
+  "pipeline_run_id": "manual__2026-10-13T10:58:44.158423+00:00",
+  "status": "success",
+  "reproducibility_outcome": "matches_within_tolerance",
+  "counts": {
+    "raw_rows": 54255,
+    "staging_rows": 30545,
+    "quarantined_rows": 23710,
+    "curated_station_day_rows": 11558,
+    "curated_model_ready_rows": 2628,
+    "train_rows": 2102,
+    "test_rows": 526,
+    "prediction_rows": 1578,
+    "postgres_prediction_rows": 1578
+  }
+}
+
+## [11:09:15] RESULT: PASS

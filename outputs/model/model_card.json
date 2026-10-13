@@ -1,6 +1,6 @@
 {
-  "pipeline_run_id": "dev_runall_2",
-  "trained_at_utc": "2026-10-13T10:49:18.620+00:00",
+  "pipeline_run_id": "manual__2026-10-13T10:58:44.158423+00:00",
+  "trained_at_utc": "2026-10-13T11:08:47.986+00:00",
   "task": "binary classification: air_quality (Unhealthy if station-day PM2.5 > 15 µg/m³)",
   "training_data": {
     "file": "data/curated/model_ready.parquet",
@@ -31,8 +31,8 @@
   },
   "threading": "threadpoolctl limits=1 during fit and cross-validation",
   "environment": {
-    "python": "3.12.10",
-    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.12.14",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.36",
     "numpy": "2.5.4",
     "pandas": "3.0.6",
     "scikit_learn": "1.9.1",
@@ -41,7 +41,7 @@
   "models": {
     "logistic_regression": {
       "file": "outputs/model/logistic_regression.joblib",
-      "sha256": "6421a90a4f57bad640dd302072fcf7fab0a189f59c205f197cad1b46378e8a7b",
+      "sha256": "69aee469d8ea7c4c3210c9888fec9157c629628c6e763485f59eda5a4df635d4",
       "estimator": "sklearn.linear_model.LogisticRegression",
       "params": {
         "C": 1.0,
@@ -62,7 +62,7 @@
     },
     "random_forest": {
       "file": "outputs/model/random_forest.joblib",
-      "sha256": "8f17284405ee60cbb8ee589737ca63b5c94d953865efd6294c14f26f90d57ad9",
+      "sha256": "86bd14a6e6bc63384128c223e7007dbe9a7e9b1972eee9e6ae926fab189558a2",
       "estimator": "sklearn.ensemble.RandomForestClassifier",
       "params": {
         "bootstrap": true,
@@ -88,7 +88,7 @@
     },
     "gradient_boosting": {
       "file": "outputs/model/gradient_boosting.joblib",
-      "sha256": "8af2ab045bbf02fa27f5fa7f72404753bd333b30639b53fbb6b18ab72cd7e462",
+      "sha256": "b194863d1e85d6b0000318dd35418abf3ad65289a438a9a991625e391de5325c",
       "estimator": "sklearn.ensemble.GradientBoostingClassifier",
       "params": {
         "ccp_alpha": 0.0,

@@ -1,7 +1,11 @@
 # DSS150P Lab 04 services. Usage (from the repository root, after `cp .env.example .env`):
-#   docker compose up -d postgres                    # database only
-#   docker compose run --rm pipeline run-all         # whole pipeline once, in a container
+#   docker compose up -d --build                     # warehouse DB + Airflow (UI on http://localhost:8081)
+#   docker compose run --rm pipeline run-all         # whole pipeline once, without Airflow
 #   docker compose run --rm pipeline <command>       # any single stage, e.g. ingest / train
+#
+# Two PostgreSQL servers on purpose: `postgres` is the data warehouse the pipeline writes to;
+# `airflow-db` holds Airflow's own metadata, so a warehouse outage (failure drill) does not take
+# the orchestrator down with it.
 name: dss150p_lab04_valerio_jennapatricia
 
 x-db-env: &db-env
@@ -47,5 +51,55 @@ services:
       - ./logs:/app/logs
       - ./docs:/app/docs
 
+  airflow-db:
+    image: postgres:16.15
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: ${AIRFLOW_DB_PASSWORD:?set AIRFLOW_DB_PASSWORD in .env}
+      POSTGRES_DB: airflow
+    volumes:
+      - airflow-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow -d airflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  airflow:
+    build:
+      context: .
+      dockerfile: docker/airflow/Dockerfile
+    image: dss150p-lab04-airflow:3.3.2
+    command: ["bash", "/opt/project/docker/airflow/start-airflow.sh"]
+    environment:
+      <<: *db-env
+      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD:?set AIRFLOW_ADMIN_PASSWORD in .env}
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:${AIRFLOW_DB_PASSWORD}@airflow-db:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/project/dags
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "False"
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: admin:admin
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/simple_auth_manager_passwords.json
+      AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_JWT_SECRET:?set AIRFLOW_JWT_SECRET in .env}
+      AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL: "30"
+    ports:
+      - "127.0.0.1:${AIRFLOW_HOST_PORT:-8081}:8080"
+    volumes:
+      - .:/opt/project
+    depends_on:
+      postgres:
+        condition: service_healthy
+      airflow-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:8080/api/v2/monitor/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 90s
+
 volumes:
   pgdata:
+  airflow-db-data:

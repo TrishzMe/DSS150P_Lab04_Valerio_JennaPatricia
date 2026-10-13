@@ -1,7 +1,7 @@
 {
-  "pipeline_run_id": "dev_runall_2",
+  "pipeline_run_id": "manual__2026-10-13T10:58:44.158423+00:00",
   "layer": "staging",
-  "generated_at_utc": "2026-10-13T10:49:12.335+00:00",
+  "generated_at_utc": "2026-10-13T10:59:00.840+00:00",
   "status": "passed",
   "summary": {
     "checks": 8,

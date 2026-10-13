@@ -1,0 +1,69 @@
+Airflow evidence: success
+Generated: 2026-10-13T10:57:27+00:00
+DAG: predictive_repro_pipeline   API: http://127.0.0.1:8081/api/v2
+====================================================================================================
+
+## [10:57:28] DAG dependency graph (task -> downstream)
+  build_curated            -> load_postgres   retries=2.0 timeout={'__type': 'TimeDelta', 'days': 0, 'seconds': 600, 'microseconds': 0}
+  evaluate_model           -> reproducibility_check   retries=2.0 timeout={'__type': 'TimeDelta', 'days': 0, 'seconds': 1200, 'microseconds': 0}
+  ingest_source            -> validate_raw   retries=2.0 timeout={'__type': 'TimeDelta', 'days': 0, 'seconds': 600, 'microseconds': 0}
+  load_postgres            -> validate_curated   retries=3.0 timeout={'__type': 'TimeDelta', 'days': 0, 'seconds': 600, 'microseconds': 0}
+  partition_staging        -> publish_outputs   retries=2.0 timeout=None
+  publish_outputs          -> (end)   retries=3.0 timeout=None
+  reproducibility_check    -> publish_outputs   retries=0.0 timeout=None
+  train_model              -> evaluate_model   retries=2.0 timeout={'__type': 'TimeDelta', 'days': 0, 'seconds': 900, 'microseconds': 0}
+  transform_staging        -> build_curated, partition_staging   retries=2.0 timeout={'__type': 'TimeDelta', 'days': 0, 'seconds': 600, 'microseconds': 0}
+  validate_curated         -> train_model   retries=1.0 timeout=None
+  validate_raw             -> transform_staging   retries=0.0 timeout=None
+
+## [10:57:28] Triggered run manual__2026-10-13T10:57:28.026641+00:00 with conf {'ingest_mode': 'incremental', 'impute_scope': 'baseline', 'selected_partition': 'PM2.5'}
+
+## [10:58:28] Run finished: state=success
+  build_curated            success          try=1  duration_s=1.49
+  evaluate_model           success          try=1  duration_s=13.96
+  ingest_source            success          try=1  duration_s=1.6
+  load_postgres            success          try=1  duration_s=2.95
+  partition_staging        success          try=1  duration_s=1.56
+  publish_outputs          success          try=1  duration_s=4.21
+  reproducibility_check    success          try=1  duration_s=4.66
+  train_model              success          try=1  duration_s=6.35
+  transform_staging        success          try=1  duration_s=1.92
+  validate_curated         success          try=1  duration_s=3.21
+  validate_raw             success          try=1  duration_s=1.9
+
+## [10:58:28] outputs/run_summary.json for this run
+{
+  "pipeline_run_id": "manual__2026-10-13T10:57:28.026641+00:00",
+  "status": "success",
+  "started_at_utc": "2026-10-13T10:57:29.661+00:00",
+  "ended_at_utc": "2026-10-13T10:58:16.549+00:00",
+  "impute_scope": "baseline",
+  "counts": {
+    "raw_rows": 54255,
+    "staging_rows": 30545,
+    "quarantined_rows": 23710,
+    "curated_station_day_rows": 11558,
+    "curated_model_ready_rows": 2628,
+    "train_rows": 2102,
+    "test_rows": 526,
+    "prediction_rows": 1578,
+    "postgres_prediction_rows": 1578
+  },
+  "best_model": "gradient_boosting",
+  "reproducibility_outcome": "matches_within_tolerance",
+  "stage_status": {
+    "ingest_source": "success",
+    "validate_raw": "success",
+    "transform_staging": "success",
+    "build_curated": "success",
+    "partition_staging": "success",
+    "load_postgres": "success",
+    "validate_curated": "success",
+    "train_model": "success",
+    "evaluate_model": "success",
+    "reproducibility_check": "success",
+    "publish_outputs": "success"
+  }
+}
+
+## [10:58:28] RESULT: PASS

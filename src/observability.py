@@ -90,13 +90,47 @@ def log_event(event: str, level: int = logging.INFO, exc_info: bool = False, **f
     get_logger().log(level, event, extra={"fields": fields}, exc_info=exc_info)
 
 
+@contextmanager
+def file_lock(path: Path, timeout_s: float = 60.0, stale_s: float = 300.0) -> Iterator[None]:
+    """Cross-process lock (parallel Airflow tasks update the same run record)."""
+    lock = path.with_name(path.name + ".lock")
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    deadline = time.monotonic() + timeout_s
+    while True:
+        try:
+            fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.close(fd)
+            break
+        except FileExistsError:
+            try:
+                if time.time() - lock.stat().st_mtime > stale_s:  # holder crashed
+                    lock.unlink(missing_ok=True)
+                    continue
+            except FileNotFoundError:
+                continue
+            if time.monotonic() > deadline:
+                raise TimeoutError(f"Could not acquire {lock} within {timeout_s}s")
+            time.sleep(0.05)
+    try:
+        yield
+    finally:
+        lock.unlink(missing_ok=True)
+
+
 class RunRecord:
-    """JSON run record shared by all stages of one pipeline run."""
+    """JSON run record shared by all stages of one pipeline run (updates are lock-protected)."""
 
     def __init__(self, settings: Settings, run_id: str):
         self.settings = settings
         self.run_id = run_id
         self.path = settings.path("outputs_dir") / "runs" / run_slug(run_id) / "run_record.json"
+
+    def _update(self, mutate) -> dict[str, Any]:
+        with file_lock(self.path):
+            record = self.load()
+            mutate(record)
+            self.save(record)
+            return record
 
     def load(self) -> dict[str, Any]:
         if self.path.exists():
@@ -115,52 +149,46 @@ class RunRecord:
         atomic_write_json(self.path, record)
 
     def update_parameters(self, **params: Any) -> None:
-        record = self.load()
-        record["parameters"].update({k: v for k, v in params.items() if v is not None})
-        self.save(record)
+        self._update(lambda r: r["parameters"].update({k: v for k, v in params.items() if v is not None}))
 
     def start_stage(self, name: str) -> None:
-        record = self.load()
-        previous = record["stages"].get(name, {})
-        record["stages"][name] = {
-            "status": "running",
-            "attempt": int(previous.get("attempt", 0)) + 1,
-            "started_at_utc": utc_now_iso(),
-            "ended_at_utc": None,
-            "duration_s": None,
-            "row_counts": {},
-            "error": None,
-        }
-        record["status"] = "running"
-        record["ended_at_utc"] = None
-        self.save(record)
+        def mutate(record: dict[str, Any]) -> None:
+            previous = record["stages"].get(name, {})
+            record["stages"][name] = {
+                "status": "running",
+                "attempt": int(previous.get("attempt", 0)) + 1,
+                "started_at_utc": utc_now_iso(),
+                "ended_at_utc": None,
+                "duration_s": None,
+                "row_counts": {},
+                "error": None,
+            }
+            record["status"] = "running"
+            record["ended_at_utc"] = None
+
+        self._update(mutate)
 
     def finish_stage(
         self, name: str, status: str, duration_s: float, counts: dict[str, Any], error: str | None = None
     ) -> dict[str, Any]:
-        record = self.load()
-        stage = record["stages"].setdefault(name, {"attempt": 1, "started_at_utc": utc_now_iso()})
-        stage.update(
-            status=status,
-            ended_at_utc=utc_now_iso(),
-            duration_s=round(duration_s, 4),
-            row_counts=counts,
-            error=error,
-        )
-        if status == "success":
-            record["counts"].update({k: v for k, v in counts.items() if isinstance(v, (int, float))})
-        if status == "failed":
-            record["status"] = "failed"
-            record["ended_at_utc"] = utc_now_iso()
-        self.save(record)
-        return record
+        def mutate(record: dict[str, Any]) -> None:
+            stage = record["stages"].setdefault(name, {"attempt": 1, "started_at_utc": utc_now_iso()})
+            stage.update(status=status, ended_at_utc=utc_now_iso(), duration_s=round(duration_s, 4),
+                         row_counts=counts, error=error)
+            if status == "success":
+                record["counts"].update({k: v for k, v in counts.items() if isinstance(v, (int, float))})
+            if status == "failed":
+                record["status"] = "failed"
+                record["ended_at_utc"] = utc_now_iso()
+
+        return self._update(mutate)
 
     def finalize(self, status: str) -> dict[str, Any]:
-        record = self.load()
-        record["status"] = status
-        record["ended_at_utc"] = utc_now_iso()
-        self.save(record)
-        return record
+        def mutate(record: dict[str, Any]) -> None:
+            record["status"] = status
+            record["ended_at_utc"] = utc_now_iso()
+
+        return self._update(mutate)
 
 
 @dataclass

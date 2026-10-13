@@ -1,0 +1,186 @@
+{
+  "scenario": "db_outage",
+  "steps": [],
+  "run_id": "manual__2026-10-13T10:58:44.158423+00:00",
+  "conf": {
+    "ingest_mode": "incremental",
+    "impute_scope": "baseline",
+    "selected_partition": "PM2.5"
+  },
+  "failed_state": {
+    "run_state": "failed",
+    "tasks": [
+      {
+        "task_id": "build_curated",
+        "state": "success",
+        "try_number": 1,
+        "duration_s": 5.51
+      },
+      {
+        "task_id": "evaluate_model",
+        "state": "upstream_failed",
+        "try_number": 0,
+        "duration_s": 0.0
+      },
+      {
+        "task_id": "ingest_source",
+        "state": "success",
+        "try_number": 1,
+        "duration_s": 4.77
+      },
+      {
+        "task_id": "load_postgres",
+        "state": "failed",
+        "try_number": 4,
+        "duration_s": 40.99
+      },
+      {
+        "task_id": "partition_staging",
+        "state": "success",
+        "try_number": 1,
+        "duration_s": 5.69
+      },
+      {
+        "task_id": "publish_outputs",
+        "state": "upstream_failed",
+        "try_number": 0,
+        "duration_s": 0.0
+      },
+      {
+        "task_id": "reproducibility_check",
+        "state": "upstream_failed",
+        "try_number": 0,
+        "duration_s": 0.0
+      },
+      {
+        "task_id": "train_model",
+        "state": "upstream_failed",
+        "try_number": 0,
+        "duration_s": 0.0
+      },
+      {
+        "task_id": "transform_staging",
+        "state": "success",
+        "try_number": 1,
+        "duration_s": 3.3
+      },
+      {
+        "task_id": "validate_curated",
+        "state": "upstream_failed",
+        "try_number": 0,
+        "duration_s": 0.0
+      },
+      {
+        "task_id": "validate_raw",
+        "state": "success",
+        "try_number": 1,
+        "duration_s": 5.41
+      }
+    ]
+  },
+  "recovered_state": {
+    "run_state": "success",
+    "tasks": [
+      {
+        "task_id": "build_curated",
+        "state": "success",
+        "try_number": 1,
+        "duration_s": 5.51
+      },
+      {
+        "task_id": "evaluate_model",
+        "state": "success",
+        "try_number": 1,
+        "duration_s": 11.29
+      },
+      {
+        "task_id": "ingest_source",
+        "state": "success",
+        "try_number": 1,
+        "duration_s": 4.77
+      },
+      {
+        "task_id": "load_postgres",
+        "state": "success",
+        "try_number": 5,
+        "duration_s": 2.99
+      },
+      {
+        "task_id": "partition_staging",
+        "state": "success",
+        "try_number": 1,
+        "duration_s": 5.69
+      },
+      {
+        "task_id": "publish_outputs",
+        "state": "success",
+        "try_number": 1,
+        "duration_s": 3.72
+      },
+      {
+        "task_id": "reproducibility_check",
+        "state": "success",
+        "try_number": 1,
+        "duration_s": 3.41
+      },
+      {
+        "task_id": "train_model",
+        "state": "success",
+        "try_number": 1,
+        "duration_s": 5.33
+      },
+      {
+        "task_id": "transform_staging",
+        "state": "success",
+        "try_number": 1,
+        "duration_s": 3.3
+      },
+      {
+        "task_id": "validate_curated",
+        "state": "success",
+        "try_number": 1,
+        "duration_s": 3.3
+      },
+      {
+        "task_id": "validate_raw",
+        "state": "success",
+        "try_number": 1,
+        "duration_s": 5.41
+      }
+    ]
+  },
+  "run_summary": {
+    "pipeline_run_id": "manual__2026-10-13T10:58:44.158423+00:00",
+    "status": "success",
+    "started_at_utc": "2026-10-13T10:58:47.190+00:00",
+    "ended_at_utc": "2026-10-13T11:09:08.192+00:00",
+    "impute_scope": "baseline",
+    "counts": {
+      "raw_rows": 54255,
+      "staging_rows": 30545,
+      "quarantined_rows": 23710,
+      "curated_station_day_rows": 11558,
+      "curated_model_ready_rows": 2628,
+      "train_rows": 2102,
+      "test_rows": 526,
+      "prediction_rows": 1578,
+      "postgres_prediction_rows": 1578
+    },
+    "best_model": "gradient_boosting",
+    "reproducibility_outcome": "matches_within_tolerance",
+    "stage_status": {
+      "ingest_source": "success",
+      "validate_raw": "success",
+      "transform_staging": "success",
+      "build_curated": "success",
+      "partition_staging": "success",
+      "load_postgres": "success",
+      "validate_curated": "success",
+      "train_model": "success",
+      "evaluate_model": "success",
+      "reproducibility_check": "success",
+      "publish_outputs": "success"
+    }
+  },
+  "result": "PASS"
+}
