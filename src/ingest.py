@@ -25,7 +25,7 @@ import numpy as np
 import pandas as pd
 
 from .config import Settings
-from .io_utils import atomic_write_json, digest_of_keys, hash_rows, read_json, sha256_file
+from .io_utils import atomic_write_json, digest_of_keys, hash_rows, read_json, replace_file, sha256_file
 from .observability import StageContext, log_event, run_slug, utc_now_iso
 from .source import RAW_COLUMNS, ContractViolation, load_manifest, read_source_text, verify_source
 
@@ -122,7 +122,7 @@ def copy_full_snapshot(settings: Settings, run_id: str) -> dict[str, Any]:
     target = target_dir / settings["source"]["filename"]
     tmp = target.with_name(f".{target.name}.tmp")
     shutil.copyfile(settings.source_path, tmp)
-    os.replace(tmp, target)
+    replace_file(tmp, target)
     copy_checksum = sha256_file(target)
     if copy_checksum != facts["sha256"]:
         raise ContractViolation(f"Raw copy checksum {copy_checksum} differs from source {facts['sha256']}")
@@ -230,7 +230,7 @@ def ingest(
         tmp = path.with_name(f".{path.name}.tmp")
         batch.to_parquet(tmp, index=False)
         _validate_batch_file(tmp, spec, expected_columns)  # validate BEFORE committing
-        os.replace(tmp, path)
+        replace_file(tmp, path)
         checkpoint["committed_batches"][str(bid)] = {
             **spec,
             "file": path.relative_to(settings.root).as_posix(),

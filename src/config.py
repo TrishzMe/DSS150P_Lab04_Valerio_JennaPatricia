@@ -184,10 +184,10 @@ def load_settings(
     """Load, merge and validate settings.
 
     ``root`` defaults to ``REPRO_PROJECT_ROOT`` or the repository root. ``config_path``
-    defaults to ``REPRO_CONFIG`` or ``<repo>/config/settings.yml``.
+    defaults to ``REPRO_CONFIG`` or ``<root>/config/settings.yml``.
     """
     root_path = Path(root or os.environ.get("REPRO_PROJECT_ROOT") or REPO_ROOT).resolve()
-    cfg_path = Path(config_path or os.environ.get("REPRO_CONFIG") or DEFAULT_CONFIG_PATH)
+    cfg_path = Path(config_path or os.environ.get("REPRO_CONFIG") or root_path / "config" / "settings.yml")
     if not cfg_path.is_absolute():
         cfg_path = root_path / cfg_path
     if not cfg_path.exists():

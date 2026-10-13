@@ -1,0 +1,58 @@
+{
+  "results": {
+    "tampered_source": {
+      "failed_at": "ingest --mode full",
+      "exit_code": 1,
+      "model_outputs_written": false,
+      "raw_batches_written": false
+    },
+    "missing_column": {
+      "failed_at": "ingest --mode full",
+      "exit_code": 1,
+      "model_outputs_written": false
+    },
+    "invalid_rows": {
+      "failed_at": "transform-staging",
+      "exit_code": 1,
+      "staging_written": false,
+      "model_outputs_written": false,
+      "quarantine_reasons": {
+        "non_ugm3_unit": 8760,
+        "duplicate_reading": 7894,
+        "out_of_scope_pollutant": 6385,
+        "null_or_unparseable_timestamp": 489,
+        "null_or_unparseable_value": 486,
+        "negative_value": 303
+      },
+      "recovery": {
+        "failed_at": null,
+        "exit_code": 0,
+        "reproducibility_outcome": "matches_within_tolerance"
+      }
+    },
+    "few_invalid_rows": {
+      "failed_at": null,
+      "exit_code": 0,
+      "quarantine_reasons": {
+        "non_ugm3_unit": 8915,
+        "duplicate_reading": 8055,
+        "out_of_scope_pollutant": 6385,
+        "negative_value": 308,
+        "null_or_unparseable_value": 51,
+        "null_or_unparseable_timestamp": 51
+      }
+    },
+    "invalid_config": {
+      "failed_at": "ingest --mode full",
+      "exit_code": 2,
+      "anything_written": false
+    }
+  },
+  "expectations": {
+    "tampered_source": true,
+    "missing_column": true,
+    "invalid_rows": true,
+    "few_invalid_rows": true,
+    "invalid_config": true
+  }
+}

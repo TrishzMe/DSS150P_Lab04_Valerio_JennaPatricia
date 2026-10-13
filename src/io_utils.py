@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import time
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -50,6 +51,19 @@ def _tmp_path(path: Path) -> Path:
     return path.with_name(f".{path.name}.tmp-{os.getpid()}")
 
 
+def replace_file(src: str | Path, dst: str | Path, attempts: int = 10, delay_s: float = 0.1) -> None:
+    """os.replace with a short retry: on Windows, antivirus or the search indexer can hold a freshly
+    written file for a moment and the rename fails with PermissionError (WinError 5)."""
+    for attempt in range(1, attempts + 1):
+        try:
+            os.replace(src, dst)
+            return
+        except PermissionError:
+            if attempt == attempts:
+                raise
+            time.sleep(delay_s * attempt)
+
+
 def atomic_write_bytes(path: str | Path, data: bytes) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -58,7 +72,7 @@ def atomic_write_bytes(path: str | Path, data: bytes) -> None:
         fh.write(data)
         fh.flush()
         os.fsync(fh.fileno())
-    os.replace(tmp, path)
+    replace_file(tmp, path)
 
 
 def atomic_write_text(path: str | Path, text: str) -> None:
@@ -79,7 +93,7 @@ def atomic_write_parquet(path: str | Path, frame: pd.DataFrame) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = _tmp_path(path)
     frame.to_parquet(tmp, index=False, engine="pyarrow")
-    os.replace(tmp, path)
+    replace_file(tmp, path)
 
 
 def atomic_write_csv(path: str | Path, frame: pd.DataFrame, **kwargs: Any) -> None:
@@ -87,4 +101,4 @@ def atomic_write_csv(path: str | Path, frame: pd.DataFrame, **kwargs: Any) -> No
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = _tmp_path(path)
     frame.to_csv(tmp, index=False, lineterminator="\n", **kwargs)
-    os.replace(tmp, path)
+    replace_file(tmp, path)

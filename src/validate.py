@@ -160,7 +160,9 @@ def staging_checks(staging: pd.DataFrame, funnel: dict[str, Any], settings: Sett
     critical = ["pollutant", "unit", "value", "last_updated_utc", "location", "city", "country_label"]
     nulls = {c: int(staging[c].isna().sum()) for c in critical}
     dup = int(staging.duplicated(subset=key).sum())
-    negatives = int((staging["value"] < cfg["min_valid_value"]).sum())
+    # Coerce so a wrongly typed column is reported by SCH-02 instead of crashing this check.
+    numeric_value = pd.to_numeric(staging["value"], errors="coerce")
+    negatives = int((numeric_value < cfg["min_valid_value"]).sum())
     bad_units = sorted(set(staging["unit"].dropna()) - {cfg["accepted_unit"]})
     bad_pollutants = sorted(set(staging["pollutant"].dropna()) - set(cfg["target_pollutants"]))
     ts_type = str(staging["last_updated_utc"].dtype)

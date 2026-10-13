@@ -26,7 +26,7 @@ import pyarrow.dataset as ds
 import pyarrow.parquet as pq
 
 from .config import Settings
-from .io_utils import atomic_write_json, atomic_write_text, digest_of_keys
+from .io_utils import atomic_write_json, atomic_write_text, digest_of_keys, replace_file
 from .observability import StageContext, log_event, utc_now_iso
 from .transform import read_staging
 
@@ -75,7 +75,7 @@ def write_partitions(settings: Settings, staging: pd.DataFrame | None = None) ->
                         basename_template="part-{i}.parquet", existing_data_behavior="delete_matching")
     if target.exists():
         shutil.rmtree(target)
-    os.replace(tmp, target)  # replacement-partition strategy: readers never see a half-written dataset
+    replace_file(tmp, target)  # replacement-partition strategy: readers never see a half-written dataset
     counts = staging[column].value_counts().sort_index()
     return {"dataset": target.relative_to(settings.root).as_posix(), "partition_column": column,
             "partitions": {str(k): int(v) for k, v in counts.items()}}
