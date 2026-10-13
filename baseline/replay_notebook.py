@@ -53,6 +53,7 @@ def replay(source: Path) -> dict:
     df_wide = df_wide.sort_values(by=['Location', 'Date'])
     # ---- cell 9 -------------------------------------------------------------------------------
     df_model_ready = df_wide.dropna(subset=['PM2.5', 'NO2', 'O3']).copy()
+    before_imputation = df_model_ready.copy()  # (not in the notebook) kept for --compare-curated
     for col in ['SO2', 'CO']:
         df_model_ready[f'{col}_missing'] = df_model_ready[col].isna().astype(int)
         df_model_ready[col] = df_model_ready[col].fillna(df_model_ready[col].median())
@@ -102,6 +103,7 @@ def replay(source: Path) -> dict:
     train_keys = keys(df_model_ready.loc[X_train_c.index])
     test_keys = keys(df_model_ready.loc[X_test_c.index])
     return {
+        "before_imputation": before_imputation.reset_index(drop=True),
         "metrics": metrics,
         "split": {
             "method": "sklearn.model_selection.train_test_split",
@@ -123,12 +125,31 @@ def replay(source: Path) -> dict:
     }
 
 
+def compare_curated(notebook_frame: pd.DataFrame, curated_path: Path) -> dict:
+    """Is the pipeline's curated model-ready table identical to the notebook's frame (order + values)?"""
+    ours = pd.read_parquet(curated_path)
+    same_rows = len(ours) == len(notebook_frame)
+    keys_equal = same_rows and all(
+        (notebook_frame[a].astype(str).values == ours[b].astype(str).values).all()
+        for a, b in [('Country Label', 'country_label'), ('City', 'city'), ('Location', 'location'),
+                     ('Date', 'reading_date')])
+    values = {b: bool(same_rows and np.array_equal(notebook_frame[a].to_numpy(), ours[b].to_numpy(), equal_nan=True))
+              for a, b in [('PM2.5', 'pm25'), ('PM10', 'pm10'), ('NO2', 'no2'), ('O3', 'o3'), ('SO2', 'so2'), ('CO', 'co')]}
+    return {"rows": [len(notebook_frame), len(ours)], "same_row_order_and_keys": bool(keys_equal),
+            "bit_identical_values": values, "identical": bool(keys_equal and all(values.values()))}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--source", default=str(ROOT / "data" / "source" / "world_air_quality.csv"))
     parser.add_argument("--write-manifest", action="store_true", help="write metadata/split_manifest.json")
+    parser.add_argument("--compare-curated", action="store_true",
+                        help="compare data/curated/model_ready.parquet with the notebook's pre-imputation frame")
     args = parser.parse_args()
     result = replay(Path(args.source))
+    notebook_frame = result.pop("before_imputation")
+    if args.compare_curated:
+        result["curated_comparison"] = compare_curated(notebook_frame, ROOT / "data" / "curated" / "model_ready.parquet")
     expected = json.loads((ROOT / "metadata" / "expected_metrics.json").read_text(encoding="utf-8"))
     mismatches = [f"{m}.{k}: {v} != {expected['models'][m][k]}"
                   for m, vals in result["metrics"].items() for k, v in vals.items()

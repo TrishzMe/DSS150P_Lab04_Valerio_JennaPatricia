@@ -13,9 +13,11 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
+COPY pytest.ini ./
 COPY config ./config
 COPY sql ./sql
 COPY src ./src
+COPY dags ./dags
 COPY tests ./tests
 COPY scripts ./scripts
 COPY baseline ./baseline

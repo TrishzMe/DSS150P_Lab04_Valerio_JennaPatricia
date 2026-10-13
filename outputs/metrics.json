@@ -1,6 +1,6 @@
 {
-  "pipeline_run_id": "manual__2026-10-13T10:58:44.158423+00:00",
-  "evaluated_at_utc": "2026-10-13T11:08:59.688+00:00",
+  "pipeline_run_id": "rerun_check__20261013T111154Z",
+  "evaluated_at_utc": "2026-10-13T11:12:14.432+00:00",
   "impute_scope": "baseline",
   "imputation_medians": {
     "so2": 6.0,
@@ -97,12 +97,12 @@
       "test_precision_weighted": 0.7039834432650964,
       "test_recall_weighted": 0.7053231939163498,
       "test_f1_weighted": 0.7044449363149173,
-      "cv_f1_weighted_mean": 0.7118139388398368,
-      "cv_f1_weighted_std": 0.0061518453510209774,
+      "cv_f1_weighted_mean": 0.7122096228720148,
+      "cv_f1_weighted_std": 0.006402148968557064,
       "cv_fold_scores": [
         0.70557461070843,
         0.7122781005833672,
-        0.7149933023910845,
+        0.7169717225519747,
         0.721376339507487,
         0.7048473410088155
       ],
@@ -136,8 +136,8 @@
     "so2_missing": 0.00955206563324376
   },
   "environment": {
-    "python": "3.12.14",
-    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26300-SP0",
     "numpy": "2.5.4",
     "pandas": "3.0.6",
     "scikit_learn": "1.9.1",

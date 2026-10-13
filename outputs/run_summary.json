@@ -1,8 +1,8 @@
 {
-  "pipeline_run_id": "manual__2026-10-13T10:58:44.158423+00:00",
+  "pipeline_run_id": "rerun_check__20261013T111154Z",
   "status": "success",
-  "started_at_utc": "2026-10-13T10:58:47.190+00:00",
-  "ended_at_utc": "2026-10-13T11:09:08.192+00:00",
+  "started_at_utc": "2026-10-13T11:11:55.709+00:00",
+  "ended_at_utc": "2026-10-13T11:12:14.762+00:00",
   "impute_scope": "baseline",
   "counts": {
     "raw_rows": 54255,

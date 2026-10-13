@@ -1,0 +1,55 @@
+Second end-to-end run: no duplicate logical records (acceptance test A15)
+Generated: 2026-10-13T11:12:15+00:00
+====================================================================================================
+
+## PostgreSQL tables BEFORE the run
+{
+  "curated.predictions": {
+    "rows": 1578,
+    "duplicate_business_keys": 0
+  },
+  "curated.model_ready": {
+    "rows": 2628,
+    "duplicate_business_keys": 0
+  },
+  "staging.air_quality_readings": {
+    "rows": 30545,
+    "duplicate_business_keys": 0
+  },
+  "curated.station_day_pollutants": {
+    "rows": 11558,
+    "duplicate_business_keys": 0
+  }
+}
+
+## python -m src.cli --run-id rerun_check__20261013T111154Z run-all  -> exit 0
+raw batches skipped (already committed): [1, 2, 3, 4, 5]
+
+## Load statistics of this run (audit.load_log)
+  staging.air_quality_readings       snapshot= 30545 inserted=0 updated=0 deleted=0 unchanged= 30545 after= 30545
+  curated.station_day_pollutants     snapshot= 11558 inserted=0 updated=0 deleted=0 unchanged= 11558 after= 11558
+  curated.model_ready                snapshot=  2628 inserted=0 updated=0 deleted=0 unchanged=  2628 after=  2628
+
+## PostgreSQL tables AFTER the run
+{
+  "curated.predictions": {
+    "rows": 1578,
+    "duplicate_business_keys": 0
+  },
+  "curated.model_ready": {
+    "rows": 2628,
+    "duplicate_business_keys": 0
+  },
+  "staging.air_quality_readings": {
+    "rows": 30545,
+    "duplicate_business_keys": 0
+  },
+  "curated.station_day_pollutants": {
+    "rows": 11558,
+    "duplicate_business_keys": 0
+  }
+}
+
+## Reproducibility outcome of the rerun: matches_within_tolerance
+
+RESULT: PASS (table sizes unchanged, 0 duplicate business keys, 0 rows written)

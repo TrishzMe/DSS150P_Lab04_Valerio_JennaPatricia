@@ -1,7 +1,7 @@
 {
-  "pipeline_run_id": "manual__2026-10-13T10:58:44.158423+00:00",
+  "pipeline_run_id": "rerun_check__20261013T111154Z",
   "layer": "curated",
-  "generated_at_utc": "2026-10-13T11:08:42.210+00:00",
+  "generated_at_utc": "2026-10-13T11:12:02.619+00:00",
   "status": "passed",
   "summary": {
     "checks": 10,

@@ -269,6 +269,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    # Always emit UTF-8 (e.g. 'µg/m³'): on Windows a redirected stdout otherwise uses the ANSI code page.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="backslashreplace")
     args = build_parser().parse_args(argv)
     if getattr(args, "force", False):
         args.mode = "full"

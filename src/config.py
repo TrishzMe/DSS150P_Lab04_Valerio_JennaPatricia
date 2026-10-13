@@ -10,7 +10,7 @@ from __future__ import annotations
 import copy
 import os
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
 import yaml
@@ -169,7 +169,8 @@ def validate_settings(data: dict[str, Any]) -> None:
         errors.append(f"storage.benchmark_repeats must be an integer >= 5, got {repeats!r}")
 
     for key, rel in data["paths"].items():
-        if Path(rel).is_absolute():
+        # Reject absolute paths in either style on any OS (a Windows path is not "absolute" on Linux).
+        if PurePosixPath(str(rel)).is_absolute() or PureWindowsPath(str(rel)).is_absolute() or PureWindowsPath(str(rel)).drive:
             errors.append(f"paths.{key} must be relative to the project root, got {rel!r}")
 
     if errors:
