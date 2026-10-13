@@ -1,0 +1,156 @@
+{
+  "pipeline_run_id": "dev_m06_bench",
+  "generated_at_utc": "2026-10-13T10:40:49.178+00:00",
+  "dataset": "data/staging/air_quality_readings.parquet",
+  "reference": {
+    "rows": 30545,
+    "key_checksum": "9cc0dec8d1773373d319e37128f8d9a8f6d856f5abab95c725afcc5bb84a497a",
+    "record_hash_checksum": "a473a56510b1ab26279410c4b1a2fe9b986d6d0c3baba29cd8721ac8318f913a",
+    "value_sum": 33836054.57701
+  },
+  "repeats": 5,
+  "timing_method": "time.perf_counter; median of 5 runs; first cold full read reported separately",
+  "selective_filter": {
+    "pollutant": "PM2.5",
+    "country_label": "Japan"
+  },
+  "selective_rows_expected": 1048,
+  "environment": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.12.10",
+    "cpu_count": 12,
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "postgres": "16.15 (Debian 16.15-1.pgdg13+2)",
+    "in_container": false
+  },
+  "formats": {
+    "csv": {
+      "size_bytes": 7596715,
+      "write": {
+        "median_s": 0.39175,
+        "min_s": 0.37246,
+        "max_s": 0.43477,
+        "runs": 5
+      },
+      "read_full_cold_s": 0.15772,
+      "read_full": {
+        "median_s": 0.14702,
+        "min_s": 0.14485,
+        "max_s": 0.15921,
+        "runs": 5
+      },
+      "read_selective": {
+        "median_s": 0.14936,
+        "min_s": 0.14377,
+        "max_s": 0.17664,
+        "runs": 5
+      },
+      "selective_rows": 1048,
+      "equivalent_to_staging": true
+    },
+    "jsonl": {
+      "size_bytes": 15193295,
+      "write": {
+        "median_s": 0.51149,
+        "min_s": 0.50276,
+        "max_s": 0.5564,
+        "runs": 5
+      },
+      "read_full_cold_s": 0.40599,
+      "read_full": {
+        "median_s": 0.36695,
+        "min_s": 0.36037,
+        "max_s": 0.38965,
+        "runs": 5
+      },
+      "read_selective": {
+        "median_s": 0.36399,
+        "min_s": 0.35803,
+        "max_s": 0.38052,
+        "runs": 5
+      },
+      "selective_rows": 1048,
+      "equivalent_to_staging": true
+    },
+    "parquet": {
+      "size_bytes": 2935287,
+      "write": {
+        "median_s": 0.05328,
+        "min_s": 0.04337,
+        "max_s": 0.06288,
+        "runs": 5
+      },
+      "read_full_cold_s": 0.01421,
+      "read_full": {
+        "median_s": 0.00768,
+        "min_s": 0.00724,
+        "max_s": 0.00875,
+        "runs": 5
+      },
+      "read_selective": {
+        "median_s": 0.00873,
+        "min_s": 0.00784,
+        "max_s": 0.01172,
+        "runs": 5
+      },
+      "selective_rows": 1048,
+      "equivalent_to_staging": true
+    },
+    "postgresql": {
+      "size_bytes": 10969088,
+      "table_heap_bytes": 7929856,
+      "write": {
+        "median_s": 0.47354,
+        "min_s": 0.45037,
+        "max_s": 0.50685,
+        "runs": 5
+      },
+      "read_full_cold_s": 0.36601,
+      "read_full": {
+        "median_s": 0.34418,
+        "min_s": 0.33306,
+        "max_s": 0.35335,
+        "runs": 5
+      },
+      "read_selective": {
+        "median_s": 0.0136,
+        "min_s": 0.01283,
+        "max_s": 0.0153,
+        "runs": 5
+      },
+      "selective_rows": 1048,
+      "selective_plan": [
+        "Bitmap Heap Scan on staging_copy  (cost=7.17..623.35 rows=281 width=202)",
+        "  Recheck Cond: ((pollutant = 'PM2.5'::text) AND (country_label = 'Japan'::text))",
+        "  ->  Bitmap Index Scan on staging_copy_pollutant_country_label_idx  (cost=0.00..7.10 rows=281 width=0)",
+        "        Index Cond: ((pollutant = 'PM2.5'::text) AND (country_label = 'Japan'::text))"
+      ],
+      "equivalent_to_staging": true,
+      "server_version": "16.15 (Debian 16.15-1.pgdg13+2)"
+    }
+  },
+  "partitioning": {
+    "dataset": "data/partitioned/staging_by_pollutant",
+    "partition_column": "pollutant",
+    "partitions": {
+      "CO": 3221,
+      "NO2": 4931,
+      "O3": 3980,
+      "PM10": 6383,
+      "PM2.5": 8246,
+      "SO2": 3784
+    },
+    "selected_partition_check": {
+      "partition": "pollutant=PM2.5",
+      "files_read": [
+        "part-0.parquet"
+      ],
+      "rows_loaded": 8246,
+      "rows_expected_from_staging_filter": 8246,
+      "row_count_matches": true,
+      "same_records": true,
+      "read_seconds": 0.01143
+    }
+  }
+}

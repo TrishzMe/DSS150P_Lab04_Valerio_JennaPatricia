@@ -109,6 +109,28 @@ def cmd_sync_audit(settings: Settings, args: argparse.Namespace) -> Any:
     return {"synced_run": args.run_id}
 
 
+def cmd_partition(settings: Settings, args: argparse.Namespace) -> Any:
+    from .benchmark import verify_partition, write_partitions
+
+    with stage(settings, args.run_id, "partition_staging") as ctx:
+        result = write_partitions(settings)
+        ctx.counts["partitions"] = len(result["partitions"])
+        if args.select:
+            result["selected_partition_check"] = check = verify_partition(settings, args.select)
+            if not (check["row_count_matches"] and check["same_records"]):
+                raise RuntimeError(f"Selected partition check failed: {check}")
+    return result
+
+
+def cmd_benchmark(settings: Settings, args: argparse.Namespace) -> Any:
+    from .benchmark import run_benchmark
+
+    with stage(settings, args.run_id, "storage_benchmark") as ctx:
+        report = run_benchmark(settings, args.run_id, ctx)
+    return {fmt: {"size_bytes": v["size_bytes"], "read_median_s": v["read_full"]["median_s"],
+                  "equivalent": v["equivalent_to_staging"]} for fmt, v in report["formats"].items()}
+
+
 def cmd_raw_stats(settings: Settings, args: argparse.Namespace) -> Any:
     from .ingest import load_checkpoint, raw_summary
 
@@ -136,6 +158,8 @@ COMMANDS: dict[str, tuple[Handler, str]] = {
     "load-postgres": (cmd_load_postgres, "Rerun-safe load of staging and curated tables into PostgreSQL"),
     "db-stats": (cmd_db_stats, "Show duplicate business keys and recent load statistics"),
     "sync-audit": (cmd_sync_audit, "Copy the run record of --run-id into audit.pipeline_runs/task_runs"),
+    "partition": (cmd_partition, "Write pollutant-partitioned Parquet; --select VALUE loads one partition"),
+    "benchmark": (cmd_benchmark, "CSV / JSONL / Parquet / PostgreSQL storage benchmark + report"),
 }
 
 
@@ -156,6 +180,7 @@ def build_parser() -> argparse.ArgumentParser:
                    help="simulate a crash after committing N batches (recovery demonstration)")
     parsers["validate-curated"].add_argument("--skip-database", action="store_true",
                                              help="skip the PostgreSQL consistency check (CON-04)")
+    parsers["partition"].add_argument("--select", help="partition value to load and verify, e.g. PM2.5")
     return parser
 
 
