@@ -1,0 +1,39 @@
+# --- secrets: the real .env is never committed (copy .env.example instead) ---
+.env
+*.env.local
+
+# --- Python / tooling ---
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+*.egg-info/
+
+# --- generated data layers (rebuilt by the pipeline from data/source) ---
+data/raw/*
+data/staging/*
+data/curated/*
+data/partitioned/*
+data/quarantine/*
+data/benchmark/*
+!data/*/.gitkeep
+
+# --- generated run artefacts ---
+logs/
+outputs/runs/
+outputs/variants/
+outputs/failure_drills/
+outputs/model/*
+!outputs/model/.gitkeep
+!outputs/model/model_card.json
+
+# --- Airflow local state ---
+airflow_home/
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

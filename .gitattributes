@@ -1,0 +1,12 @@
+# Normalise text files to LF so shell scripts and Python run unchanged inside Linux containers.
+* text=auto eol=lf
+
+# The source dataset is checksum-verified: git must never rewrite its bytes (it is CRLF + UTF-8 BOM).
+data/source/*.csv -text
+# Verbatim copies of the original group project must stay byte-identical as well.
+baseline/original/** -text
+
+*.parquet binary
+*.png binary
+*.pdf binary
+*.joblib binary

@@ -1,0 +1,13 @@
+# Top-level dependencies. requirements.txt is the fully pinned lock generated from this file:
+#   uv pip compile requirements.in --universal --python-version 3.12 -o requirements.txt
+# The pandas / numpy / scikit-learn versions below are the ones verified to reproduce the
+# baseline metrics exactly; change them only together with a new reproducibility check.
+pandas==3.0.6
+numpy==2.5.4
+scikit-learn==1.9.1
+pyarrow==25.0.1
+PyYAML==6.0.3
+psycopg[binary]==3.3.6
+python-dotenv==1.2.4
+joblib==1.6.0
+pytest==9.0.3

@@ -1,0 +1,100 @@
+# Pipeline configuration. Every path is relative to the project root, so the repository
+# runs unchanged on any machine. Credentials are NOT stored here: they come from .env.
+
+project:
+  name: dss150p-pm25-exceedance-repro
+  description: Reproduction of the PM2.5 WHO-exceedance classifier as a reproducible data product
+
+paths:
+  source_dir: data/source
+  raw_dir: data/raw
+  staging_dir: data/staging
+  curated_dir: data/curated
+  partitioned_dir: data/partitioned
+  quarantine_dir: data/quarantine
+  benchmark_dir: data/benchmark
+  metadata_dir: metadata
+  outputs_dir: outputs
+  logs_dir: logs
+
+source:
+  filename: world_air_quality.csv
+  manifest_file: metadata/source_manifest.yml
+  contract_file: metadata/data_contract.yml
+  delimiter: ";"
+  encoding: utf-8-sig
+  # Text values standardised to NULL in staging. This is pandas' default NA list, written out
+  # explicitly because the original notebook relied on it implicitly (e.g. City = "N/A").
+  null_tokens: ["", "#N/A", "#N/A N/A", "#NA", "-1.#IND", "-1.#QNAN", "-NaN", "-nan", "1.#IND",
+                "1.#QNAN", "<NA>", "N/A", "NA", "NULL", "NaN", "None", "n/a", "nan", "null"]
+
+ingestion:
+  # The source has no reliable arrival timestamp, so incremental ingestion is simulated with
+  # deterministic, contiguous batches of the immutable source row order (see README).
+  num_batches: 5
+  checkpoint_file: data/raw/_state/ingest_checkpoint.json
+
+transform:
+  target_pollutants: ["PM2.5", "PM10", "NO2", "O3", "SO2", "CO"]
+  dedup_key: [location, pollutant, last_updated_utc]
+  accepted_unit: "µg/m³"
+  min_valid_value: 0.0
+  geo_fill_value: Unknown
+  # Fail staging if more than this share of in-scope rows are invalid (unparseable) rows.
+  max_invalid_row_rate: 0.01
+
+model:
+  target_source_column: pm25
+  target_column: air_quality
+  threshold_ugm3: 15.0           # WHO 24-hour PM2.5 guideline; strictly greater => Unhealthy
+  positive_label: Unhealthy
+  negative_label: Safe
+  required_columns: [pm25, no2, o3]
+  imputed_columns: [so2, co]
+  # Feature order matters (tree models sample features by position): keep the original order.
+  features: [no2, o3, so2, co, so2_missing, co_missing, ox_total_oxidant, no2_o3_ratio]
+  leakage_columns: [pm25, pm10, air_quality]
+  # baseline   = median imputation fitted on all model-ready rows before the split (original notebook)
+  # train_only = median imputation fitted on the training rows only (leakage-free variant)
+  impute_scope: baseline
+  global_seed: 42
+  split:
+    method: stratified_random
+    test_size: 0.2
+    random_state: 42
+    shuffle: true
+  cv:
+    n_splits: 5
+    shuffle: true
+    random_state: 42
+    scoring: f1_weighted
+  selection_metric: cv_f1_weighted_mean
+  models:
+    logistic_regression:
+      display_name: Logistic Regression
+      estimator: sklearn.linear_model.LogisticRegression
+      params: {max_iter: 1000}
+    random_forest:
+      display_name: Random Forest
+      estimator: sklearn.ensemble.RandomForestClassifier
+      params: {n_estimators: 200, random_state: 42}
+    gradient_boosting:
+      display_name: Gradient Boosting
+      estimator: sklearn.ensemble.GradientBoostingClassifier
+      params: {n_estimators: 200, random_state: 42}
+
+reproducibility:
+  expected_metrics_file: metadata/expected_metrics.json
+  expected_split_file: metadata/split_manifest.json
+  primary_metric: gradient_boosting.cv_f1_weighted_mean
+  # Deterministic algorithms + pinned libraries => metrics must agree to 3 decimal places.
+  tolerance_abs: 0.0005
+
+storage:
+  partition_column: pollutant
+  benchmark_repeats: 5
+  benchmark_filter: {pollutant: "PM2.5", country_label: "Japan"}
+
+database:
+  connect_timeout_s: 10
+  schemas: [staging, curated, audit]
